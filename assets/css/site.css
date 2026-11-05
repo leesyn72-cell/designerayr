@@ -1,0 +1,153 @@
+:root {
+    --paper: #ffffff;
+    --ink: #000000;
+    --muted: #767676;
+    --caption: #9a9a9a;
+    --line: #ececec;
+    --serif: "Instrument Serif", "Times New Roman", serif;
+    --sans: "Inter", "Pretendard", "Apple SD Gothic Neo", system-ui, sans-serif;
+    --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --pad: 24px;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-optical-sizing: auto;
+    font-size: 15px;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+    -webkit-font-smoothing: antialiased;
+}
+a { color: inherit; text-decoration: none; }
+img { display: block; max-width: 100%; }
+p { margin: 0; }
+.pre { white-space: pre-line; }
+.muted { color: var(--muted); }
+.serif { font-family: var(--serif); font-weight: 400; letter-spacing: -0.03em; }
+
+/* ---------- Site header (every page but home) ---------- */
+.site-header {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: start;
+    gap: 24px;
+    padding: 16px var(--pad);
+    font-size: 15px;
+    font-weight: 500;
+}
+.site-header .brand { display: flex; align-items: center; gap: 6px; }
+.site-header nav { display: flex; justify-content: flex-end; gap: 32px; }
+.site-header a:hover { opacity: 0.6; }
+
+/* ---------- Profile section (home + about) ---------- */
+.profile { padding: 160px var(--pad) 120px; }
+.profile.tight { padding-top: 56px; }
+.profile .label { color: var(--muted); font-weight: 500; margin-bottom: 32px; }
+.statement { font-family: var(--serif); font-size: 64.5px; line-height: 1.3; letter-spacing: -0.03em; max-width: 1180px; }
+.statement em { font-style: italic; }
+.statement .tail { color: var(--muted); }
+.korean-line { margin-top: 28px; font-size: 12px; line-height: 1.6; color: var(--caption); opacity: 0.6; }
+
+.intro-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-top: 96px; }
+.intro-info { display: flex; flex-direction: column; gap: 24px; font-weight: 500; }
+.intro-info .who { display: flex; flex-direction: column; gap: 2px; }
+.intro-info .about { font-size: 13px; line-height: 1.55; color: var(--muted); }
+.available { display: flex; align-items: center; gap: 8px; }
+.available::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #22c55e; }
+.btn { display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; padding: 12px 22px; border-radius: 999px; background: var(--ink); color: var(--paper); font-weight: 500; }
+.btn:hover { opacity: 0.85; }
+.photo { position: relative; height: 560px; background: var(--line); overflow: hidden; }
+.photo img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 50%; }
+.lists { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; font-weight: 500; }
+.lists h4 { margin: 0 0 14px; font-weight: 500; color: var(--muted); }
+.lists ul { list-style: none; margin: 0; padding: 0; line-height: 1.35; }
+
+.row { display: grid; grid-template-columns: 1fr 3fr; gap: 24px; padding: 48px 0; border-top: 1px solid var(--line); margin-top: 120px; }
+.row + .row { margin-top: 0; }
+.row h3 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 40px; line-height: 1.05; letter-spacing: -0.03em; }
+.entries > div { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; padding: 0 0 20px; font-weight: 500; }
+.services > div { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; padding: 20px 0; border-top: 1px solid var(--line); font-weight: 500; }
+.services > div:first-child { border-top: 0; padding-top: 0; }
+.services .desc, .services .work, .entries .period { color: var(--muted); }
+.reach a { display: inline-block; font-family: var(--serif); font-size: 64px; line-height: 1.05; letter-spacing: -0.03em; }
+.reach a:hover { opacity: 0.6; }
+.reach p { margin-top: 16px; color: var(--muted); font-weight: 500; }
+
+/* ---------- Home ---------- */
+.home-hero { padding-top: 16px; }
+.carousel-wrap { height: 760px; margin-top: 24px; }
+
+/* ---------- Work grid ---------- */
+.work-page { padding: 120px var(--pad) 120px; }
+.work-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; }
+.work-head h1 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 64px; line-height: 1.05; letter-spacing: -0.03em; }
+.work-head h1 sup { font-family: var(--sans); font-size: 14px; color: var(--muted); letter-spacing: 0; vertical-align: top; margin-left: 4px; }
+.work-head .cats { color: var(--muted); font-weight: 500; }
+.grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px 8px; }
+.card .cover { aspect-ratio: 4 / 5; overflow: hidden; background: var(--line); }
+.card .cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+.card:hover .cover img { transform: scale(1.04); }
+.card .cap { display: flex; justify-content: space-between; gap: 12px; margin-top: 10px; font-weight: 500; }
+.card .cap .f { color: var(--muted); text-align: right; flex-shrink: 0; }
+
+/* ---------- Project page ---------- */
+.proj-head { padding: 160px var(--pad) 56px; }
+.back { font-size: 12px; font-weight: 500; color: var(--muted); }
+.back:hover { color: var(--ink); }
+.proj-head h1 { margin: 16px 0 0; font-family: var(--serif); font-weight: 400; font-size: 64px; line-height: 1.05; letter-spacing: -0.03em; }
+.proj-head h1 sup { font-size: 0.4em; margin-left: 4px; vertical-align: top; position: relative; top: 0.3em; }
+.proj-intro { margin-top: 20px; font-size: 13px; line-height: 1.55; color: var(--caption); font-weight: 500; }
+.meta { display: flex; gap: 40px; margin-top: 32px; font-size: 13px; font-weight: 500; }
+.meta span { display: block; color: var(--muted); margin-bottom: 2px; }
+.body-imgs img { width: 100%; height: auto; }
+.behance { padding: 32px var(--pad) 0; font-weight: 500; }
+.behance a:hover { opacity: 0.6; }
+.others { padding: 120px var(--pad) 120px; }
+.others-head { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 28px; }
+.others-head h2 { margin: 0; font-family: var(--serif); font-weight: 400; font-size: 48px; letter-spacing: -0.03em; line-height: 1; }
+.others-head a { font-size: 13px; color: var(--muted); font-weight: 500; }
+.others .grid { grid-template-columns: repeat(6, 1fr); gap: 32px 8px; }
+.others .card .cap { flex-direction: column; gap: 2px; font-size: 13px; }
+.others .card .cap .f { text-align: left; }
+
+/* ---------- Tablet ---------- */
+@media (max-width: 1199px) {
+    .statement { font-size: 49px; }
+    .profile { padding-top: 120px; padding-bottom: 96px; }
+    .profile.tight { padding-top: 48px; }
+    .intro-grid { grid-template-columns: 1fr; gap: 40px; margin-top: 72px; }
+    .photo { height: auto; aspect-ratio: 16 / 11.6; }
+    .row { margin-top: 96px; }
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .others .grid { grid-template-columns: repeat(2, 1fr); }
+    .reach a { font-size: 52px; }
+    .work-head h1, .proj-head h1 { font-size: 52px; }
+    .carousel-wrap { height: 620px; }
+}
+
+/* ---------- Phone ---------- */
+@media (max-width: 809px) {
+    :root { --pad: 20px; }
+    .site-header { grid-template-columns: 1fr auto; }
+    .site-header .tag { display: none; }
+    .site-header nav { gap: 20px; }
+    .statement { font-size: 40px; }
+    .profile { padding-top: 96px; padding-bottom: 80px; }
+    .profile.tight { padding-top: 40px; }
+    .photo { aspect-ratio: 4 / 5; }
+    .row { grid-template-columns: 1fr; gap: 24px; margin-top: 72px; }
+    .entries > div, .services > div { grid-template-columns: 1fr; gap: 2px; }
+    .reach a { font-size: 42px; }
+    .grid { grid-template-columns: 1fr; }
+    .others .grid { grid-template-columns: repeat(2, 1fr); }
+    .work-page { padding-top: 72px; }
+    .work-head { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .work-head h1, .proj-head h1 { font-size: 42px; }
+    .proj-head { padding-top: 112px; }
+    .carousel-wrap { height: 520px; }
+}
