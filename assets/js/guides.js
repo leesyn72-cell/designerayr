@@ -599,6 +599,966 @@ function Confetti({
     }
   })));
 }
+const EASE = "0.45 0 0.55 1";
+const MP_CSS = `
+@keyframes mp-wave { 0%, 100% { transform: rotate(4deg) } 50% { transform: rotate(58deg) } }
+@keyframes mp-upper { 0%, 100% { transform: rotate(-22deg) } 50% { transform: rotate(-12deg) } }
+@keyframes mp-sit { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-10px) } }
+@keyframes mp-bowl { 0%, 100% { transform: scale(1.04, 0.95) } 50% { transform: scale(1, 1) } }
+@keyframes mp-tilt { 0%, 100% { transform: rotate(-4deg) } 50% { transform: rotate(5deg) } }
+@keyframes mp-pulse { 0%, 100% { opacity: 0.15 } 50% { opacity: 1 } }
+@keyframes mp-spin { 0%, 100% { transform: translateY(0) rotate(0deg) } 50% { transform: translateY(-14px) rotate(25deg) } }
+@keyframes mp-play { from { transform: translateX(0) } to { transform: translateX(230px) } }
+`;
+function Hand() {
+  const f = (x, a, l) => React.createElement("rect", {
+    key: x,
+    x: -7,
+    y: -l,
+    width: 14,
+    height: l,
+    rx: 7,
+    transform: `translate(${x} -22) rotate(${a})`,
+    fill: "#fff",
+    stroke: C.line,
+    strokeWidth: 1.8
+  });
+  return React.createElement("g", null, f(-16, -28, 34), f(-6, -10, 44), f(6, 6, 46), f(17, 22, 40), React.createElement("rect", {
+    x: -7,
+    y: -26,
+    width: 14,
+    height: 30,
+    rx: 7,
+    transform: "translate(-22 -6) rotate(-62)",
+    fill: "#fff",
+    stroke: C.line,
+    strokeWidth: 1.8
+  }), React.createElement("circle", {
+    cx: 0,
+    cy: -18,
+    r: 24,
+    fill: "#fff",
+    stroke: C.line,
+    strokeWidth: 1.8
+  }), React.createElement("circle", {
+    cx: 0,
+    cy: -18,
+    r: 8,
+    fill: "none",
+    stroke: C.joint,
+    strokeWidth: 2
+  }));
+}
+function Forearm({
+  ghost
+}) {
+  return React.createElement("g", {
+    opacity: ghost ? 0.35 : 1
+  }, React.createElement("rect", {
+    x: -24,
+    y: -100,
+    width: 48,
+    height: 112,
+    rx: 24,
+    fill: ghost ? "#F7E3C4" : C.pink,
+    stroke: C.line,
+    strokeWidth: 1.8
+  }), React.createElement("circle", {
+    cx: 0,
+    cy: 0,
+    r: 8,
+    fill: "none",
+    stroke: C.joint,
+    strokeWidth: 2
+  }), React.createElement("rect", {
+    x: -30,
+    y: -30,
+    width: 60,
+    height: 60,
+    fill: "none",
+    stroke: C.pivot,
+    strokeWidth: 1.6,
+    strokeDasharray: "7 6",
+    transform: "rotate(15)"
+  }), React.createElement("g", {
+    transform: "translate(0 -104)"
+  }, React.createElement(Hand, null)));
+}
+function MovingPoster() {
+  const sw = 1.8;
+  const arc = "M155 495 C 290 130, 380 65, 470 65 C 590 65, 640 330, 800 492";
+  const rows = [120, 235, 350, 465, 580, 695, 810, 925, 1040];
+  const shapes = [{
+    x: 245,
+    y: 137,
+    d: "M-14 -12 L4 0 L-14 12 L-6 0 Z",
+    c: C.mint,
+    dur: 3.2
+  }, {
+    x: 284,
+    y: 428,
+    d: "M0 -14 L14 0 L0 14 L-14 0 Z",
+    c: C.yellow,
+    dur: 2.8
+  }, {
+    x: 213,
+    y: 573,
+    d: "M-18 -14 L18 14 L18 -14 L-18 14 Z",
+    c: C.mint,
+    dur: 3.6
+  }, {
+    x: 840,
+    y: 148,
+    d: "M-14 -14 L14 -14 L14 14 L-14 14 Z",
+    c: C.yellow,
+    dur: 3
+  }, {
+    x: 737,
+    y: 142,
+    d: "M0 -14 L13 -4 L8 12 L-8 12 L-13 -4 Z",
+    c: C.yellow,
+    dur: 3.4
+  }, {
+    x: 742,
+    y: 660,
+    d: "M14 -12 L-4 0 L14 12 L6 0 Z",
+    c: C.rose,
+    dur: 2.6
+  }, {
+    x: 834,
+    y: 697,
+    d: "M-16 -16 L16 16 L16 -16 L-16 16 Z",
+    c: C.rose,
+    dur: 3.8
+  }];
+  return React.createElement("svg", {
+    className: "mq",
+    viewBox: "0 0 993 1090",
+    style: {
+      display: "block",
+      width: "100%",
+      height: "auto",
+      background: "#fff"
+    }
+  }, React.createElement("style", null, MP_CSS), React.createElement("defs", null, React.createElement("clipPath", {
+    id: "mp-clip"
+  }, React.createElement("rect", {
+    width: 993,
+    height: 1090
+  })), React.createElement("linearGradient", {
+    id: "mp-bowl",
+    x1: "0",
+    y1: "0",
+    x2: "0",
+    y2: "1"
+  }, React.createElement("stop", {
+    offset: "0",
+    stopColor: "#F1B2B4"
+  }), React.createElement("stop", {
+    offset: "1",
+    stopColor: "#E58F93"
+  })), React.createElement("linearGradient", {
+    id: "mp-leg",
+    x1: "0",
+    y1: "0",
+    x2: "0",
+    y2: "1"
+  }, React.createElement("stop", {
+    offset: "0",
+    stopColor: "#F3C9CA"
+  }), React.createElement("stop", {
+    offset: "1",
+    stopColor: "#FBEDEE"
+  }))), React.createElement("g", {
+    clipPath: "url(#mp-clip)"
+  }, React.createElement("circle", {
+    cx: 680,
+    cy: 95,
+    r: 115,
+    fill: "#F6EAA8",
+    opacity: 0.6
+  }), React.createElement("circle", {
+    cx: 110,
+    cy: 830,
+    r: 120,
+    fill: "#E6F2E2",
+    opacity: 0.6
+  }), rows.map((y, i) => React.createElement("text", {
+    key: y,
+    x: i % 2 ? -160 : 120,
+    y: y,
+    fontFamily: "Georgia, 'Times New Roman', serif",
+    fontWeight: 700,
+    fontSize: 128,
+    fill: "#EFEEF7",
+    letterSpacing: -2
+  }, "AFTER EFFECTS AFTER EFFECTS", React.createElement("animateTransform", {
+    attributeName: "transform",
+    type: "translate",
+    values: i % 2 ? "0 0;160 0;0 0" : "0 0;-160 0;0 0",
+    dur: `${14 + i % 3 * 3}s`,
+    repeatCount: "indefinite",
+    calcMode: "spline",
+    keyTimes: "0;0.5;1",
+    keySplines: `${EASE};${EASE}`
+  }))), React.createElement("text", {
+    transform: "translate(48 92) rotate(90)",
+    fontFamily: SANS,
+    fontSize: 18,
+    fill: C.ink
+  }, "\uBAA8\uC9D1\uAE30\uAC04"), React.createElement("text", {
+    transform: "translate(44 168) rotate(90)",
+    fontFamily: SANS,
+    fontWeight: 800,
+    fontSize: 66,
+    fill: C.ink
+  }, "06.11"), React.createElement("line", {
+    x1: 68,
+    y1: 368,
+    x2: 68,
+    y2: 522,
+    stroke: C.ink,
+    strokeWidth: 2
+  }), React.createElement("text", {
+    transform: "translate(44 558) rotate(90)",
+    fontFamily: SANS,
+    fontWeight: 800,
+    fontSize: 66,
+    fill: C.ink
+  }, "07.11"), React.createElement("line", {
+    x1: 85,
+    y1: 495,
+    x2: 950,
+    y2: 495,
+    stroke: C.line,
+    strokeWidth: sw
+  }), React.createElement("path", {
+    d: arc,
+    fill: "none",
+    stroke: C.line,
+    strokeWidth: sw
+  }), React.createElement("rect", {
+    x: 143,
+    y: 483,
+    width: 24,
+    height: 24,
+    fill: C.yellow,
+    stroke: C.line,
+    strokeWidth: sw
+  }), React.createElement("rect", {
+    x: 459,
+    y: 54,
+    width: 22,
+    height: 22,
+    fill: C.rose,
+    stroke: C.line,
+    strokeWidth: sw
+  }), React.createElement("line", {
+    x1: 800,
+    y1: 495,
+    x2: 878,
+    y2: 495,
+    stroke: C.line,
+    strokeWidth: 4
+  }), React.createElement("rect", {
+    x: 867,
+    y: 485,
+    width: 22,
+    height: 20,
+    fill: C.yellow,
+    stroke: C.line,
+    strokeWidth: sw
+  }), React.createElement("circle", {
+    r: 16,
+    fill: C.yellow,
+    stroke: C.line,
+    strokeWidth: sw
+  }, React.createElement("animateMotion", {
+    path: arc,
+    dur: "3.2s",
+    repeatCount: "indefinite",
+    keyPoints: "0;1;0",
+    keyTimes: "0;0.5;1",
+    calcMode: "spline",
+    keySplines: `${EASE};${EASE}`
+  })), React.createElement("rect", {
+    x: 220,
+    y: 240,
+    width: 688,
+    height: 22,
+    fill: "#E9A2A5",
+    stroke: C.line,
+    strokeWidth: sw
+  }), React.createElement("rect", {
+    x: 335,
+    y: 288,
+    width: 573,
+    height: 22,
+    fill: "#E9A2A5",
+    stroke: C.line,
+    strokeWidth: sw
+  }), React.createElement("rect", {
+    x: 605,
+    y: 202,
+    width: 227,
+    height: 208,
+    fill: "#F8DF95",
+    stroke: C.line,
+    strokeWidth: sw
+  }), shapes.map((s, i) => React.createElement("g", {
+    key: i,
+    transform: `translate(${s.x} ${s.y})`
+  }, React.createElement("path", {
+    d: s.d,
+    fill: s.c,
+    stroke: C.line,
+    strokeWidth: 1.4,
+    style: {
+      animation: `mp-spin ${s.dur}s ease-in-out ${-i * 0.6}s infinite`
+    }
+  }))), React.createElement("circle", {
+    cx: 279,
+    cy: 697,
+    r: 11,
+    fill: "#F6D6D6"
+  }), React.createElement("circle", {
+    cx: 712,
+    cy: 815,
+    r: 17,
+    fill: C.mint,
+    stroke: C.line,
+    strokeWidth: 1.4
+  }, React.createElement("animate", {
+    attributeName: "cy",
+    values: "815;790;815",
+    dur: "2s",
+    repeatCount: "indefinite",
+    calcMode: "spline",
+    keyTimes: "0;0.5;1",
+    keySplines: `${EASE};${EASE}`
+  })), [[600, 842], [676, 918], [755, 880], [838, 838], [905, 828]].map(([x, y], i) => React.createElement("ellipse", {
+    key: i,
+    cx: x,
+    cy: y,
+    rx: 42,
+    ry: 48,
+    transform: `rotate(${-30 + i * 14} ${x} ${y})`,
+    fill: "#F4C7C9",
+    stroke: C.line,
+    strokeWidth: 1.2,
+    opacity: 0.35
+  })), React.createElement("rect", {
+    x: 650,
+    y: 1012,
+    width: 104,
+    height: 50,
+    rx: 22,
+    fill: "#F4C7C9",
+    stroke: C.line,
+    strokeWidth: 1.2,
+    opacity: 0.5
+  }), React.createElement("g", null, React.createElement("animateMotion", {
+    path: "M700 1000 Q 760 760 905 800",
+    dur: "1.6s",
+    repeatCount: "indefinite",
+    keyPoints: "0;1;0",
+    keyTimes: "0;0.5;1",
+    calcMode: "spline",
+    keySplines: "0.2 0.7 0.4 1;0.6 0 0.8 0.3"
+  }), React.createElement("ellipse", {
+    cx: 0,
+    cy: -40,
+    rx: 40,
+    ry: 42,
+    fill: "#EFA9AC",
+    stroke: C.line,
+    strokeWidth: 1.6
+  }, React.createElement("animate", {
+    attributeName: "ry",
+    values: "30;48;42;48;30",
+    keyTimes: "0;0.12;0.5;0.88;1",
+    dur: "1.6s",
+    repeatCount: "indefinite"
+  }), React.createElement("animate", {
+    attributeName: "cy",
+    values: "-30;-48;-42;-48;-30",
+    keyTimes: "0;0.12;0.5;0.88;1",
+    dur: "1.6s",
+    repeatCount: "indefinite"
+  }), React.createElement("animate", {
+    attributeName: "rx",
+    values: "50;36;40;36;50",
+    keyTimes: "0;0.12;0.5;0.88;1",
+    dur: "1.6s",
+    repeatCount: "indefinite"
+  }))), React.createElement("g", {
+    style: {
+      animation: "mp-sit 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite"
+    }
+  }, React.createElement("g", {
+    transform: "translate(505 820)"
+  }, React.createElement("g", {
+    style: {
+      animation: "mp-bowl 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite"
+    }
+  }, React.createElement("path", {
+    d: "M-168 -176 Q -150 -196 -110 -182 Q 0 -150 110 -182 Q 150 -196 168 -176 C 178 -40, 95 0, 0 0 C -95 0, -178 -40, -168 -176 Z",
+    fill: "url(#mp-bowl)",
+    stroke: C.line,
+    strokeWidth: sw
+  }))), [[340, 648, C.yellow], [672, 648, C.yellow]].map(([x, y, c]) => React.createElement("g", {
+    key: x
+  }, React.createElement("rect", {
+    x: x - 30,
+    y: y - 32,
+    width: 60,
+    height: 64,
+    fill: "none",
+    stroke: c,
+    strokeWidth: 1.4,
+    strokeDasharray: "7 6"
+  }), React.createElement("circle", {
+    cx: x,
+    cy: y,
+    r: 7,
+    fill: "none",
+    stroke: C.joint,
+    strokeWidth: 2
+  }))), React.createElement("g", {
+    stroke: C.line,
+    strokeWidth: 1.6,
+    fill: "none",
+    strokeLinecap: "round",
+    style: {
+      animation: "mp-pulse 1.6s ease-in-out infinite"
+    }
+  }, React.createElement("path", {
+    d: "M330 562 Q 360 570 382 592"
+  }), React.createElement("path", {
+    d: "M342 586 Q 360 595 375 610"
+  }), React.createElement("path", {
+    d: "M592 607 Q 610 585 640 580"
+  }), React.createElement("path", {
+    d: "M604 616 Q 620 600 650 596"
+  })), React.createElement("path", {
+    d: "M432 610 L432 488 Q432 436 488 436 L522 436 Q572 440 572 494 L572 610 Z",
+    fill: C.pink,
+    stroke: C.line,
+    strokeWidth: sw
+  }), React.createElement("rect", {
+    x: 482,
+    y: 570,
+    width: 60,
+    height: 60,
+    fill: "none",
+    stroke: C.pivot,
+    strokeWidth: 1.4,
+    strokeDasharray: "7 6"
+  }), React.createElement("circle", {
+    cx: 512,
+    cy: 600,
+    r: 7,
+    fill: "none",
+    stroke: C.joint,
+    strokeWidth: 2
+  }), React.createElement("rect", {
+    x: 488,
+    y: 630,
+    width: 58,
+    height: 210,
+    rx: 20,
+    fill: "url(#mp-leg)",
+    stroke: C.line,
+    strokeWidth: sw
+  }), React.createElement("rect", {
+    x: 546,
+    y: 618,
+    width: 58,
+    height: 208,
+    rx: 20,
+    fill: "url(#mp-leg)",
+    stroke: C.line,
+    strokeWidth: sw
+  }), [[523, 660], [577, 653]].map(([x, y]) => React.createElement("g", {
+    key: x
+  }, React.createElement("rect", {
+    x: x - 32,
+    y: y - 30,
+    width: 64,
+    height: 62,
+    fill: "none",
+    stroke: C.pivot,
+    strokeWidth: 1.4,
+    strokeDasharray: "7 6"
+  }), React.createElement("circle", {
+    cx: x,
+    cy: y,
+    r: 7,
+    fill: "none",
+    stroke: C.joint,
+    strokeWidth: 2
+  }))), React.createElement("rect", {
+    x: 480,
+    y: 828,
+    width: 62,
+    height: 92,
+    rx: 28,
+    fill: "#fff",
+    stroke: C.line,
+    strokeWidth: sw
+  }), React.createElement("rect", {
+    x: 544,
+    y: 818,
+    width: 62,
+    height: 108,
+    rx: 28,
+    fill: "#fff",
+    stroke: C.line,
+    strokeWidth: sw
+  }), React.createElement("circle", {
+    cx: 509,
+    cy: 850,
+    r: 7,
+    fill: "none",
+    stroke: C.joint,
+    strokeWidth: 2
+  }), React.createElement("circle", {
+    cx: 575,
+    cy: 840,
+    r: 7,
+    fill: "none",
+    stroke: C.joint,
+    strokeWidth: 2
+  }), React.createElement("rect", {
+    x: 390,
+    y: 455,
+    width: 48,
+    height: 120,
+    rx: 24,
+    fill: C.pink,
+    stroke: C.line,
+    strokeWidth: sw
+  }), React.createElement("circle", {
+    cx: 414,
+    cy: 551,
+    r: 7,
+    fill: "none",
+    stroke: C.joint,
+    strokeWidth: 2
+  }), React.createElement("rect", {
+    x: 384,
+    y: 520,
+    width: 62,
+    height: 64,
+    fill: "none",
+    stroke: C.pivot,
+    strokeWidth: 1.4,
+    strokeDasharray: "7 6"
+  }), React.createElement("g", {
+    transform: "translate(420 606)"
+  }, React.createElement("rect", {
+    x: -30,
+    y: -8,
+    width: 60,
+    height: 20,
+    rx: 8,
+    fill: "#fff",
+    stroke: C.line,
+    strokeWidth: sw
+  }), [-20, -7, 6, 19].map(x => React.createElement("rect", {
+    key: x,
+    x: x - 7,
+    y: 6,
+    width: 14,
+    height: 36,
+    rx: 7,
+    fill: "#fff",
+    stroke: C.line,
+    strokeWidth: sw
+  })), React.createElement("circle", {
+    cx: 0,
+    cy: 4,
+    r: 7,
+    fill: "none",
+    stroke: C.joint,
+    strokeWidth: 2
+  })), React.createElement("g", {
+    transform: "translate(490 412)"
+  }, React.createElement("g", {
+    style: {
+      animation: "mp-tilt 3.2s ease-in-out infinite"
+    }
+  }, React.createElement("circle", {
+    cx: 0,
+    cy: -60,
+    r: 64,
+    fill: C.pink,
+    stroke: C.line,
+    strokeWidth: sw
+  }), React.createElement("rect", {
+    x: -30,
+    y: -92,
+    width: 60,
+    height: 62,
+    fill: "none",
+    stroke: C.pivot,
+    strokeWidth: 1.6,
+    strokeDasharray: "8 7",
+    transform: "rotate(-6 0 -60)"
+  }), React.createElement("circle", {
+    cx: 0,
+    cy: -60,
+    r: 7,
+    fill: "none",
+    stroke: C.joint,
+    strokeWidth: 2
+  }))), React.createElement("g", {
+    transform: "translate(560 458)"
+  }, React.createElement("g", {
+    style: {
+      animation: "mp-upper 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite"
+    }
+  }, React.createElement("rect", {
+    x: -10,
+    y: -26,
+    width: 112,
+    height: 52,
+    rx: 26,
+    fill: C.pink,
+    stroke: C.line,
+    strokeWidth: sw
+  }), React.createElement("g", {
+    transform: "translate(92 0) rotate(22)"
+  }, React.createElement("g", {
+    transform: "rotate(58)"
+  }, React.createElement(Forearm, {
+    ghost: true
+  })), React.createElement("g", {
+    transform: "rotate(34)"
+  }, React.createElement(Forearm, {
+    ghost: true
+  })), React.createElement("g", {
+    style: {
+      animation: "mp-wave 1.6s cubic-bezier(0.45, 0, 0.55, 1) infinite"
+    }
+  }, React.createElement(Forearm, null), React.createElement("path", {
+    d: "M10 -104 L10 -66 L19 -75 L27 -58 L33 -61 L25 -78 L37 -79 Z",
+    fill: "#fff",
+    stroke: C.line,
+    strokeWidth: 1.6,
+    strokeLinejoin: "round"
+  }))))), React.createElement("g", {
+    stroke: C.line,
+    strokeWidth: 1.6,
+    fill: "none",
+    strokeLinecap: "round",
+    style: {
+      animation: "mp-pulse 0.8s ease-in-out infinite"
+    }
+  }, React.createElement("path", {
+    d: "M752 272 Q 790 300 790 345"
+  }), React.createElement("path", {
+    d: "M770 262 Q 808 300 805 350"
+  }))), React.createElement("text", {
+    x: 52,
+    y: 858,
+    fontFamily: SANS,
+    fontWeight: 300,
+    fontSize: 64,
+    fill: C.ink,
+    letterSpacing: -1
+  }, "Designer yulim"), React.createElement("rect", {
+    x: 46,
+    y: 858,
+    width: 424,
+    height: 9,
+    fill: C.purple
+  }), React.createElement("text", {
+    x: 44,
+    y: 962,
+    fontFamily: SANS,
+    fontWeight: 900,
+    fontSize: 88,
+    fill: C.ink,
+    letterSpacing: -3
+  }, "2D \uBAA8\uC158 \uADF8\uB798\uD53D"), React.createElement("rect", {
+    x: 186,
+    y: 985,
+    width: 186,
+    height: 74,
+    rx: 37,
+    fill: C.purple
+  }), React.createElement("text", {
+    x: 44,
+    y: 1050,
+    fontFamily: SANS,
+    fontWeight: 900,
+    fontSize: 88,
+    fill: C.ink,
+    letterSpacing: -3
+  }, "\uC785\uBB38", React.createElement("tspan", {
+    fill: "#fff",
+    dx: 8
+  }, "\uBB34\uB8CC"), React.createElement("tspan", {
+    dx: 8
+  }, "\uD2B9\uAC15"))));
+}
+function PadBounce({
+  width
+}) {
+  const path = "M70 200 Q 160 10 250 200 Q 160 10 70 200";
+  const kt = "0;0.07;0.25;0.43;0.5;0.57;0.75;0.93;1";
+  return React.createElement("svg", {
+    viewBox: "0 0 320 250",
+    width: width,
+    style: {
+      display: "block",
+      overflow: "visible"
+    }
+  }, [[95, 120, -30], [130, 78, -12], [190, 78, 12], [225, 120, 30]].map(([x, y, a], i) => React.createElement("ellipse", {
+    key: i,
+    cx: x,
+    cy: y,
+    rx: 22,
+    ry: 26,
+    transform: `rotate(${a} ${x} ${y})`,
+    fill: "#F4C7C9",
+    stroke: C.line,
+    strokeWidth: 1,
+    opacity: 0.4
+  })), React.createElement("line", {
+    x1: 0,
+    y1: 222,
+    x2: 320,
+    y2: 222,
+    stroke: C.line,
+    strokeWidth: 1.4
+  }), [70, 250].map(x => React.createElement("g", {
+    key: x
+  }, React.createElement("rect", {
+    x: x - 34,
+    y: 200,
+    width: 68,
+    height: 22,
+    rx: 10,
+    fill: "#EFA9AC",
+    stroke: C.line,
+    strokeWidth: 1.6
+  }), React.createElement("rect", {
+    x: x - 22,
+    y: 186,
+    width: 44,
+    height: 40,
+    fill: "none",
+    stroke: C.pivot,
+    strokeWidth: 1.2,
+    strokeDasharray: "4 3"
+  }))), React.createElement("g", null, React.createElement("animateMotion", {
+    path: path,
+    dur: "2s",
+    repeatCount: "indefinite",
+    keyPoints: "0;0.04;0.25;0.46;0.5;0.54;0.75;0.96;1",
+    keyTimes: kt,
+    calcMode: "linear"
+  }), React.createElement("ellipse", {
+    cx: 0,
+    cy: -22,
+    rx: 22,
+    ry: 22,
+    fill: C.rose,
+    stroke: C.line,
+    strokeWidth: 1.6
+  }, React.createElement("animate", {
+    attributeName: "ry",
+    values: "14;26;22;26;14;26;22;26;14",
+    keyTimes: kt,
+    dur: "2s",
+    repeatCount: "indefinite"
+  }), React.createElement("animate", {
+    attributeName: "cy",
+    values: "-14;-26;-22;-26;-14;-26;-22;-26;-14",
+    keyTimes: kt,
+    dur: "2s",
+    repeatCount: "indefinite"
+  }), React.createElement("animate", {
+    attributeName: "rx",
+    values: "30;18;22;18;30;18;22;18;30",
+    keyTimes: kt,
+    dur: "2s",
+    repeatCount: "indefinite"
+  })), React.createElement("circle", {
+    cx: 0,
+    cy: -22,
+    r: 4,
+    fill: "none",
+    stroke: C.joint,
+    strokeWidth: 1.4
+  })));
+}
+function Puppets({
+  width
+}) {
+  const ease = "cubic-bezier(0.45, 0, 0.55, 1)";
+  const puppet = (x, delay, flip) => React.createElement("g", {
+    transform: `translate(${x} -30)`
+  }, React.createElement("g", {
+    style: {
+      animation: `ml-swing 2.4s ${ease} ${delay} infinite`
+    }
+  }, React.createElement("line", {
+    x1: -4,
+    y1: 0,
+    x2: -4,
+    y2: 160,
+    stroke: "#9FD3DA",
+    strokeWidth: 1.4
+  }), React.createElement("line", {
+    x1: 6,
+    y1: 0,
+    x2: 6,
+    y2: 160,
+    stroke: "#9FD3DA",
+    strokeWidth: 1.4
+  }), React.createElement("g", {
+    transform: `translate(0 160) scale(${flip ? -1 : 1} 1)`
+  }, React.createElement("rect", {
+    x: -30,
+    y: -2,
+    width: 56,
+    height: 9,
+    fill: C.purple,
+    stroke: C.line,
+    strokeWidth: 1.2,
+    transform: "rotate(12)"
+  }), React.createElement("rect", {
+    x: -36,
+    y: -14,
+    width: 50,
+    height: 20,
+    rx: 10,
+    fill: "#EFA9AC",
+    stroke: C.line,
+    strokeWidth: 1.4
+  }), React.createElement("g", {
+    style: {
+      animation: `ml-lag 2.4s ${ease} ${delay} infinite`
+    }
+  }, React.createElement("circle", {
+    cx: 6,
+    cy: -46,
+    r: 32,
+    fill: "#EFA9AC",
+    stroke: C.line,
+    strokeWidth: 1.4
+  }), React.createElement("ellipse", {
+    cx: -6,
+    cy: -50,
+    rx: 4,
+    ry: 5,
+    fill: C.line
+  }), React.createElement("rect", {
+    x: -10,
+    y: -62,
+    width: 32,
+    height: 30,
+    fill: "none",
+    stroke: C.pivot,
+    strokeWidth: 1.1,
+    strokeDasharray: "4 3",
+    transform: "rotate(20 6 -46)"
+  }), React.createElement("path", {
+    d: "M40 -46 Q 60 -48 76 -44 M38 -36 Q 56 -34 70 -30",
+    stroke: C.line,
+    strokeWidth: 1.2,
+    fill: "none"
+  })), React.createElement("circle", {
+    cx: -20,
+    cy: -4,
+    r: 4,
+    fill: "none",
+    stroke: C.joint,
+    strokeWidth: 1.3
+  }))));
+  return React.createElement("svg", {
+    className: "mq",
+    viewBox: "0 0 320 300",
+    width: width,
+    style: {
+      display: "block",
+      overflow: "visible"
+    }
+  }, puppet(110, "0s", true), puppet(225, "-0.4s", false), React.createElement("g", {
+    transform: "translate(20 200)"
+  }, React.createElement("rect", {
+    x: 0,
+    y: 0,
+    width: 280,
+    height: 96,
+    fill: "#FDF4D6",
+    stroke: C.line,
+    strokeWidth: 1.4
+  }), React.createElement("rect", {
+    x: 0,
+    y: 0,
+    width: 34,
+    height: 96,
+    fill: "#F6E1E2",
+    stroke: C.line,
+    strokeWidth: 1.4
+  }), React.createElement("rect", {
+    x: -8,
+    y: 22,
+    width: 34,
+    height: 8,
+    rx: 4,
+    fill: "#B7AEE0",
+    stroke: C.line,
+    strokeWidth: 1
+  }), React.createElement("rect", {
+    x: -8,
+    y: 50,
+    width: 34,
+    height: 8,
+    rx: 4,
+    fill: "#B7AEE0",
+    stroke: C.line,
+    strokeWidth: 1
+  }), React.createElement("rect", {
+    x: 34,
+    y: 20,
+    width: 246,
+    height: 7,
+    fill: "#EFA9AC"
+  }), React.createElement("rect", {
+    x: 60,
+    y: 48,
+    width: 220,
+    height: 7,
+    fill: "#EFA9AC"
+  }), [[62, 36], [74, 36], [130, 36], [142, 36], [96, 64], [108, 64], [210, 64], [222, 64]].map(([x, y], i) => React.createElement("path", {
+    key: i,
+    d: `M${x - 4} ${y - 5} L${x + 4} ${y - 5} L${x - 4} ${y + 5} L${x + 4} ${y + 5} Z`,
+    fill: "none",
+    stroke: C.line,
+    strokeWidth: 1.1
+  })), React.createElement("g", {
+    style: {
+      animation: "mp-play 2.4s linear infinite"
+    }
+  }, React.createElement("line", {
+    x1: 46,
+    y1: 4,
+    x2: 46,
+    y2: 96,
+    stroke: C.line,
+    strokeWidth: 1.2
+  }), React.createElement("path", {
+    d: "M40 -4 L52 -4 L52 6 L46 12 L40 6 Z",
+    fill: "#EFA9AC",
+    stroke: C.line,
+    strokeWidth: 1
+  }))));
+}
 function MotionLecture() {
   const rootRef = React.useRef(null);
   const [w, setW] = React.useState(1440);
@@ -632,15 +1592,15 @@ function MotionLecture() {
   const lessons = [{
     n: "1",
     title: "도형을 변형하여\n공 튀기는 모션 만들기",
-    stage: React.createElement(BouncingBall, {
-      size: m ? 44 : 56
+    stage: React.createElement(PadBounce, {
+      width: m ? 240 : 270
     }),
     points: ["모션에 대한 기본 지식을 공이 튀는 모습을 통해 쉽게 이해할 수 있습니다.", "키프레임 어시스턴트의 Easy-Ease, Easy-In, Easy-Out을 심도 있게 이해할 수 있습니다.", "Bezier 곡선을 이해하고 활용할 수 있습니다."]
   }, {
     n: "2",
     title: "시간 차를 활용하여\n그네 타는 모션 만들기",
-    stage: React.createElement(Swing, {
-      width: m ? 200 : 240
+    stage: React.createElement(Puppets, {
+      width: m ? 240 : 270
     }),
     points: ["실제 동영상을 통해 그네와 사람의 움직임을 단순한 동작으로 구분할 수 있습니다.", "시간 차의 개념을 심도 있게 이해할 수 있습니다.", "2등신 캐릭터의 신체 움직임과 모션블러의 원리를 이해할 수 있습니다."]
   }, {
@@ -710,31 +1670,36 @@ function MotionLecture() {
       background: C.paper,
       backgroundImage: "linear-gradient(rgba(238,142,140,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(238,142,140,0.12) 1px, transparent 1px)",
       backgroundSize: "40px 40px",
-      padding: m ? "56px 20px 40px" : `${Math.round(w * 0.06)}px ${pad}px`,
+      padding: m ? "48px 20px" : `${Math.round(w * 0.05)}px ${pad}px`,
       display: "grid",
-      gridTemplateColumns: m ? "1fr" : "1.1fr 1fr",
+      gridTemplateColumns: m ? "1fr" : "minmax(0, 1.25fr) minmax(0, 1fr)",
       alignItems: "center",
-      gap: m ? 24 : pad
+      gap: m ? 28 : pad * 1.5
     }
   }, React.createElement(Confetti, {
     items: confetti
   }), React.createElement("div", {
+    style: {
+      position: "relative",
+      boxShadow: "0 30px 80px rgba(47,42,42,0.14)"
+    }
+  }, React.createElement(MovingPoster, null)), React.createElement("div", {
     style: {
       position: "relative"
     }
   }, React.createElement("div", {
     style: {
       ...small,
-      color: C.muted,
+      color: C.rose,
       textTransform: "uppercase",
-      marginBottom: m ? 18 : 28
+      marginBottom: m ? 14 : 22
     }
-  }, "Poster \xB7 Leaflet \xB7 Banner"), React.createElement("h2", {
+  }, "Moving Poster"), React.createElement("h2", {
     style: {
       margin: 0,
       fontWeight: 800,
-      fontSize: titleSize,
-      lineHeight: 1.12,
+      fontSize: m ? 30 : Math.min(48, Math.round(w * 0.032)),
+      lineHeight: 1.2,
       letterSpacing: "-0.03em"
     }
   }, "2D \uBAA8\uC158 \uADF8\uB798\uD53D", React.createElement("br", null), "\uC785\uBB38 ", React.createElement("span", {
@@ -744,53 +1709,31 @@ function MotionLecture() {
       color: "#fff",
       borderRadius: 999,
       padding: "0 0.28em",
-      lineHeight: 1.05
-    }
-  }, "\uBB34\uB8CC"), " \uD2B9\uAC15"), React.createElement("div", {
-    style: {
-      marginTop: m ? 14 : 20,
-      fontFamily: SERIF,
-      fontStyle: "italic",
-      fontSize: m ? 22 : 30,
-      color: C.purple,
-      borderBottom: `2px solid ${C.purple}`,
-      display: "inline-block",
       lineHeight: 1.1
     }
-  }, "with Designer yulim"), React.createElement("div", {
+  }, "\uBB34\uB8CC"), " \uD2B9\uAC15"), React.createElement("p", {
+    style: {
+      ...body,
+      marginTop: m ? 16 : 24,
+      maxWidth: 420
+    }
+  }, "\uD3EC\uC2A4\uD130 \uC18D \uC7A5\uBA74\uC744 \uADF8\uB300\uB85C \uC6C0\uC9C1\uC774\uAC8C \uD588\uC2B5\uB2C8\uB2E4. \uCE90\uB9AD\uD130\uB294 \uAD00\uC808\uB9C8\uB2E4 \uC575\uCEE4 \uD3EC\uC778\uD2B8\uB97C \uB450\uACE0 \uD314\uAFC8\uCE58\uB97C \uCD95\uC73C\uB85C \uC190\uC744 \uD754\uB4E4\uACE0, \uACF5\uC740 \uBCA0\uC9C0\uC5B4 \uACE1\uC120\uC744 \uB530\uB77C \uC774\uC9D5\uB418\uBA70, \uBC14\uB2E5\uC758 \uACF5\uC740 \uCC29\uC9C0\uD560 \uB54C\uB9C8\uB2E4 \uCC0C\uADF8\uB7EC\uC9D1\uB2C8\uB2E4."), React.createElement("div", {
     style: {
       display: "flex",
       alignItems: "center",
       gap: 14,
-      marginTop: m ? 28 : 48,
+      marginTop: m ? 24 : 40,
       fontWeight: 800,
-      fontSize: m ? 22 : 30,
+      fontSize: m ? 20 : 26,
       letterSpacing: "-0.02em"
     }
   }, React.createElement("span", null, "06.11"), React.createElement("span", {
     style: {
-      width: m ? 48 : 80,
+      width: m ? 48 : 72,
       height: 2,
       background: C.ink
     }
-  }), React.createElement("span", null, "07.11"))), React.createElement("div", {
-    style: {
-      position: "relative",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "flex-end",
-      gap: m ? 8 : 24
-    }
-  }, React.createElement(Mannequin, {
-    pose: "wave",
-    width: m ? 200 : Math.min(300, Math.round(w * 0.2))
-  }), React.createElement("div", {
-    style: {
-      marginBottom: 6
-    }
-  }, React.createElement(BouncingBall, {
-    size: m ? 34 : 44
-  })))), React.createElement("section", {
+  }), React.createElement("span", null, "07.11")))), React.createElement("section", {
     style: {
       padding: m ? "56px 20px" : `${Math.round(w * 0.06)}px ${pad}px`
     }
@@ -888,6 +1831,7 @@ function MotionLecture() {
     style: {
       margin: 0,
       whiteSpace: "pre-line",
+      wordBreak: "keep-all",
       fontSize: m ? 18 : 20,
       fontWeight: 700,
       lineHeight: 1.4,
