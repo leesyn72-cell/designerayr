@@ -1,6 +1,957 @@
 (function () {
 const addPropertyControls = () => {}; const ControlType = new Proxy({}, { get: (_, k) => k });
 const IMG = "/assets/img/";
+const C = {
+  paper: "#FDF3F2",
+  pink: "#F8D4D3",
+  rose: "#EE8E8C",
+  line: "#2F2A2A",
+  pivot: "#E5574F",
+  joint: "#7C6BD6",
+  purple: "#5B5BD6",
+  yellow: "#F8E39C",
+  mint: "#9BD8B1",
+  ink: "#111111",
+  muted: "#777777"
+};
+const SANS = '"Pretendard", "Inter", "Apple SD Gothic Neo", system-ui, sans-serif';
+const SERIF = '"Instrument Serif", "Times New Roman", serif';
+const CSS = `
+.mq g { transform-box: view-box; }
+@keyframes mq-bob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-4px) } }
+@keyframes mq-head { 0%, 100% { transform: rotate(-5deg) } 50% { transform: rotate(6deg) } }
+@keyframes mq-wave-up { 0%, 100% { transform: rotate(-148deg) } 50% { transform: rotate(-160deg) } }
+@keyframes mq-wave-lo { 0%, 100% { transform: rotate(-28deg) } 50% { transform: rotate(32deg) } }
+@keyframes mq-idle-up { 0%, 100% { transform: rotate(8deg) } 50% { transform: rotate(14deg) } }
+@keyframes mq-idle-lo { 0%, 100% { transform: rotate(-6deg) } 50% { transform: rotate(-16deg) } }
+@keyframes mq-walk-ul { 0%, 100% { transform: rotate(18deg) } 50% { transform: rotate(-18deg) } }
+@keyframes mq-walk-ur { 0%, 100% { transform: rotate(-18deg) } 50% { transform: rotate(18deg) } }
+@keyframes mq-walk-knee { 0%, 50%, 100% { transform: rotate(0deg) } 25%, 75% { transform: rotate(-22deg) } }
+@keyframes mq-walk-al { 0%, 100% { transform: rotate(-22deg) } 50% { transform: rotate(22deg) } }
+@keyframes mq-walk-ar { 0%, 100% { transform: rotate(22deg) } 50% { transform: rotate(-22deg) } }
+@keyframes mq-walk-elbow { 0%, 100% { transform: rotate(-18deg) } 50% { transform: rotate(-6deg) } }
+@keyframes mq-walk-bob { 0%, 50%, 100% { transform: translateY(0) } 25%, 75% { transform: translateY(-6px) } }
+@keyframes ml-swing { 0%, 100% { transform: rotate(26deg) } 50% { transform: rotate(-26deg) } }
+@keyframes ml-lag { 0%, 100% { transform: rotate(-12deg) } 50% { transform: rotate(12deg) } }
+@keyframes ml-legs { 0%, 100% { transform: rotate(-20deg) } 50% { transform: rotate(20deg) } }
+@keyframes ml-bounce {
+    0%   { transform: translateY(0) scale(1.18, 0.78) }
+    10%  { transform: translateY(-40%) scale(0.92, 1.1) }
+    45%  { transform: translateY(-170%) scale(1, 1) }
+    80%  { transform: translateY(-40%) scale(0.92, 1.1) }
+    90%  { transform: translateY(0) scale(1, 1) }
+    100% { transform: translateY(0) scale(1.18, 0.78) }
+}
+@keyframes ml-shadow { 0%, 90%, 100% { transform: scaleX(1); opacity: 0.35 } 45% { transform: scaleX(0.45); opacity: 0.12 } }
+@keyframes ml-float { 0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)) } 50% { transform: translateY(-10px) rotate(calc(var(--r, 0deg) + 20deg)) } }
+@keyframes ml-path { from { offset-distance: 0% } to { offset-distance: 100% } }
+@keyframes ml-dash { to { stroke-dashoffset: -24 } }
+`;
+function useInView(threshold = 0.2) {
+  const ref = React.useRef(null);
+  const [seen, setSeen] = React.useState(false);
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setSeen(true);
+      return;
+    }
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) {
+        setSeen(true);
+        io.disconnect();
+      }
+    }, {
+      threshold
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [threshold]);
+  return [ref, seen];
+}
+function Reveal({
+  children,
+  delay = 0,
+  style
+}) {
+  const [ref, seen] = useInView();
+  return React.createElement("div", {
+    ref: ref,
+    style: {
+      ...style,
+      opacity: seen ? 1 : 0,
+      transform: `translateY(${seen ? 0 : 28}px)`,
+      transition: `opacity 1s ease ${delay}s, transform 1.2s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`
+    }
+  }, children);
+}
+function Pivot({
+  x = 0,
+  y = 0,
+  s = 18
+}) {
+  return React.createElement("rect", {
+    x: x - s / 2,
+    y: y - s / 2,
+    width: s,
+    height: s,
+    fill: "none",
+    stroke: C.pivot,
+    strokeWidth: 1.2,
+    strokeDasharray: "3 2.5"
+  });
+}
+function Joint({
+  x = 0,
+  y = 0
+}) {
+  return React.createElement("circle", {
+    cx: x,
+    cy: y,
+    r: 4.5,
+    fill: "none",
+    stroke: C.joint,
+    strokeWidth: 1.4
+  });
+}
+function Limb({
+  x,
+  y,
+  upper,
+  lower,
+  len1,
+  len2,
+  w1,
+  w2,
+  end,
+  anim
+}) {
+  const seg = (len, w) => React.createElement("rect", {
+    x: -w / 2,
+    y: -w / 2,
+    width: w,
+    height: len + w / 2,
+    rx: w / 2,
+    fill: C.pink,
+    stroke: C.line,
+    strokeWidth: 1.6
+  });
+  const tip = end === "hand" ? React.createElement("g", null, React.createElement("rect", {
+    x: -11,
+    y: -2,
+    width: 22,
+    height: 20,
+    rx: 8,
+    fill: "#fff",
+    stroke: C.line,
+    strokeWidth: 1.6
+  }), React.createElement("rect", {
+    x: -11,
+    y: 12,
+    width: 22,
+    height: 6,
+    rx: 3,
+    fill: "#fff",
+    stroke: C.line,
+    strokeWidth: 1.2
+  })) : React.createElement("path", {
+    d: "M -13 -4 L 13 -4 L 15 18 Q 0 26 -15 18 Z",
+    fill: "#fff",
+    stroke: C.line,
+    strokeWidth: 1.6
+  });
+  return React.createElement("g", {
+    transform: `translate(${x} ${y})`
+  }, React.createElement("g", {
+    style: {
+      animation: anim[0]
+    }
+  }, seg(len1, w1), React.createElement(Joint, null), React.createElement(Pivot, {
+    s: w1 + 6
+  }), React.createElement("g", {
+    transform: `translate(0 ${len1})`
+  }, React.createElement("g", {
+    style: {
+      animation: anim[1]
+    }
+  }, seg(len2, w2), React.createElement(Joint, null), React.createElement("g", {
+    transform: `translate(0 ${len2})`
+  }, tip)))));
+}
+function Mannequin({
+  pose,
+  width,
+  showPivots = true
+}) {
+  const walk = pose === "walk";
+  const wave = pose === "wave";
+  const hold = pose === "hold";
+  const t = walk ? "0.9s" : "2.4s";
+  const ani = (name, dur = t, delay = "0s") => `${name} ${dur} ease-in-out ${delay} infinite`;
+  const armR = wave ? [ani("mq-wave-up"), ani("mq-wave-lo", "0.8s")] : walk ? [ani("mq-walk-ar"), ani("mq-walk-elbow")] : hold ? ["none", "none"] : [ani("mq-idle-up"), ani("mq-idle-lo")];
+  const armL = walk ? [ani("mq-walk-al"), ani("mq-walk-elbow")] : hold ? ["none", "none"] : [ani("mq-idle-up", t, "-1.2s"), ani("mq-idle-lo", t, "-1.2s")];
+  const legR = walk ? [ani("mq-walk-ul"), ani("mq-walk-knee")] : ["none", "none"];
+  const legL = walk ? [ani("mq-walk-ur"), ani("mq-walk-knee", t, "-0.45s")] : ["none", "none"];
+  return React.createElement("svg", {
+    className: "mq",
+    viewBox: "0 0 240 420",
+    width: width,
+    style: {
+      display: "block",
+      overflow: "visible",
+      ["--pv"]: showPivots ? 1 : 0
+    }
+  }, React.createElement("g", {
+    style: {
+      animation: walk ? ani("mq-walk-bob") : ani("mq-bob", "2.4s")
+    }
+  }, React.createElement(Limb, {
+    x: 104,
+    y: 244,
+    len1: 78,
+    len2: 74,
+    w1: 30,
+    w2: 28,
+    end: "foot",
+    anim: legR
+  }), React.createElement(Limb, {
+    x: 136,
+    y: 244,
+    len1: 78,
+    len2: 74,
+    w1: 30,
+    w2: 28,
+    end: "foot",
+    anim: legL
+  }), React.createElement(Limb, {
+    x: hold ? 82 : 86,
+    y: 146,
+    len1: 58,
+    len2: 54,
+    w1: 24,
+    w2: 22,
+    end: "hand",
+    anim: hold ? ["none", "none"] : armL
+  }), React.createElement("rect", {
+    x: 84,
+    y: 128,
+    width: 72,
+    height: 108,
+    rx: 18,
+    fill: C.pink,
+    stroke: C.line,
+    strokeWidth: 1.6
+  }), React.createElement("rect", {
+    x: 80,
+    y: 226,
+    width: 80,
+    height: 30,
+    rx: 9,
+    fill: C.pink,
+    stroke: C.line,
+    strokeWidth: 1.6
+  }), React.createElement(Joint, {
+    x: 120,
+    y: 241
+  }), React.createElement(Pivot, {
+    x: 120,
+    y: 241,
+    s: 22
+  }), React.createElement("g", {
+    transform: "translate(120 128)"
+  }, React.createElement("g", {
+    style: {
+      animation: ani("mq-head", "2.4s")
+    }
+  }, React.createElement("rect", {
+    x: -9,
+    y: -16,
+    width: 18,
+    height: 20,
+    fill: C.pink,
+    stroke: C.line,
+    strokeWidth: 1.6
+  }), React.createElement("circle", {
+    cx: 0,
+    cy: -62,
+    r: 52,
+    fill: C.pink,
+    stroke: C.line,
+    strokeWidth: 1.6
+  }), React.createElement("g", {
+    transform: "translate(0 -62) rotate(18)"
+  }, React.createElement(Pivot, {
+    s: 40
+  })), React.createElement(Joint, {
+    x: 0,
+    y: -62
+  }))), React.createElement(Limb, {
+    x: hold ? 158 : 154,
+    y: 146,
+    len1: 58,
+    len2: 54,
+    w1: 24,
+    w2: 22,
+    end: "hand",
+    anim: armR
+  })));
+}
+function BouncingBall({
+  size
+}) {
+  return React.createElement("div", {
+    style: {
+      position: "relative",
+      width: size * 3,
+      height: size * 3.4,
+      display: "flex",
+      alignItems: "flex-end",
+      justifyContent: "center"
+    }
+  }, [0.2, 0.42, 0.62].map((k, i) => React.createElement("div", {
+    key: i,
+    style: {
+      position: "absolute",
+      left: `${12 + i * 12}%`,
+      bottom: `${k * 100}%`,
+      width: size * 0.8,
+      height: size * 0.8,
+      borderRadius: "50%",
+      background: C.rose,
+      opacity: 0.18 + i * 0.06
+    }
+  })), React.createElement("div", {
+    style: {
+      position: "absolute",
+      bottom: -6,
+      width: size * 0.9,
+      height: 10,
+      borderRadius: "50%",
+      background: C.line,
+      animation: "ml-shadow 1.1s cubic-bezier(0.45, 0, 0.55, 1) infinite"
+    }
+  }), React.createElement("div", {
+    style: {
+      width: size,
+      height: size,
+      borderRadius: "50%",
+      background: C.rose,
+      border: `1.6px solid ${C.line}`,
+      transformOrigin: "50% 100%",
+      animation: "ml-bounce 1.1s cubic-bezier(0.45, 0, 0.55, 1) infinite"
+    }
+  }));
+}
+function Swing({
+  width
+}) {
+  return React.createElement("svg", {
+    className: "mq",
+    viewBox: "0 0 300 380",
+    width: width,
+    style: {
+      display: "block",
+      overflow: "visible"
+    }
+  }, React.createElement("line", {
+    x1: 40,
+    y1: 10,
+    x2: 260,
+    y2: 10,
+    stroke: C.line,
+    strokeWidth: 2
+  }), React.createElement("rect", {
+    x: 136,
+    y: 2,
+    width: 28,
+    height: 16,
+    rx: 4,
+    fill: C.yellow,
+    stroke: C.line,
+    strokeWidth: 1.4
+  }), React.createElement("g", {
+    transform: "translate(150 10)"
+  }, React.createElement(Pivot, {
+    s: 20
+  }), React.createElement("g", {
+    style: {
+      animation: "ml-swing 2.2s cubic-bezier(0.45, 0, 0.55, 1) infinite"
+    }
+  }, React.createElement("line", {
+    x1: -34,
+    y1: 0,
+    x2: -34,
+    y2: 250,
+    stroke: C.line,
+    strokeWidth: 1.6
+  }), React.createElement("line", {
+    x1: 34,
+    y1: 0,
+    x2: 34,
+    y2: 250,
+    stroke: C.line,
+    strokeWidth: 1.6
+  }), React.createElement("rect", {
+    x: -52,
+    y: 248,
+    width: 104,
+    height: 12,
+    rx: 4,
+    fill: C.purple,
+    stroke: C.line,
+    strokeWidth: 1.4
+  }), React.createElement("g", {
+    transform: "translate(0 250)"
+  }, React.createElement("g", {
+    style: {
+      animation: "ml-lag 2.2s cubic-bezier(0.45, 0, 0.55, 1) -0.35s infinite"
+    }
+  }, React.createElement("rect", {
+    x: -24,
+    y: -70,
+    width: 48,
+    height: 64,
+    rx: 14,
+    fill: C.pink,
+    stroke: C.line,
+    strokeWidth: 1.6
+  }), React.createElement("g", {
+    transform: "translate(0 -70)"
+  }, React.createElement("g", {
+    style: {
+      animation: "ml-lag 2.2s cubic-bezier(0.45, 0, 0.55, 1) -0.6s infinite"
+    }
+  }, React.createElement("circle", {
+    cx: 0,
+    cy: -36,
+    r: 34,
+    fill: C.pink,
+    stroke: C.line,
+    strokeWidth: 1.6
+  }), React.createElement("g", {
+    transform: "translate(0 -36) rotate(14)"
+  }, React.createElement(Pivot, {
+    s: 26
+  })), React.createElement(Joint, {
+    x: 0,
+    y: -36
+  }))), React.createElement("rect", {
+    x: -42,
+    y: -58,
+    width: 16,
+    height: 16,
+    rx: 6,
+    fill: "#fff",
+    stroke: C.line,
+    strokeWidth: 1.4
+  }), React.createElement("rect", {
+    x: 26,
+    y: -58,
+    width: 16,
+    height: 16,
+    rx: 6,
+    fill: "#fff",
+    stroke: C.line,
+    strokeWidth: 1.4
+  })), React.createElement("g", {
+    transform: "translate(-12 6)"
+  }, React.createElement("g", {
+    style: {
+      animation: "ml-legs 2.2s cubic-bezier(0.45, 0, 0.55, 1) -0.5s infinite"
+    }
+  }, React.createElement("rect", {
+    x: -9,
+    y: 0,
+    width: 18,
+    height: 62,
+    rx: 9,
+    fill: C.pink,
+    stroke: C.line,
+    strokeWidth: 1.6
+  }), React.createElement("path", {
+    d: "M -10 58 L 10 58 L 12 72 Q 0 78 -12 72 Z",
+    fill: "#fff",
+    stroke: C.line,
+    strokeWidth: 1.4
+  }))), React.createElement("g", {
+    transform: "translate(12 6)"
+  }, React.createElement("g", {
+    style: {
+      animation: "ml-legs 2.2s cubic-bezier(0.45, 0, 0.55, 1) -0.62s infinite"
+    }
+  }, React.createElement("rect", {
+    x: -9,
+    y: 0,
+    width: 18,
+    height: 62,
+    rx: 9,
+    fill: C.pink,
+    stroke: C.line,
+    strokeWidth: 1.6
+  }), React.createElement("path", {
+    d: "M -10 58 L 10 58 L 12 72 Q 0 78 -12 72 Z",
+    fill: "#fff",
+    stroke: C.line,
+    strokeWidth: 1.4
+  })))))));
+}
+function BezierPath({
+  width
+}) {
+  const d = "M 20 180 C 90 -40, 230 -40, 300 180";
+  return React.createElement("div", {
+    style: {
+      position: "relative",
+      width,
+      aspectRatio: "320 / 200"
+    }
+  }, React.createElement("svg", {
+    viewBox: "0 0 320 200",
+    style: {
+      position: "absolute",
+      inset: 0,
+      width: "100%",
+      height: "100%",
+      overflow: "visible"
+    }
+  }, React.createElement("path", {
+    d: d,
+    fill: "none",
+    stroke: C.line,
+    strokeWidth: 1.4
+  }), React.createElement("line", {
+    x1: 20,
+    y1: 180,
+    x2: 90,
+    y2: -40,
+    stroke: C.line,
+    strokeWidth: 0.8,
+    strokeDasharray: "4 4",
+    style: {
+      animation: "ml-dash 1.2s linear infinite"
+    }
+  }), React.createElement("line", {
+    x1: 300,
+    y1: 180,
+    x2: 230,
+    y2: -40,
+    stroke: C.line,
+    strokeWidth: 0.8,
+    strokeDasharray: "4 4",
+    style: {
+      animation: "ml-dash 1.2s linear infinite"
+    }
+  }), [[20, 180], [300, 180]].map(([x, y]) => React.createElement("rect", {
+    key: x,
+    x: x - 6,
+    y: y - 6,
+    width: 12,
+    height: 12,
+    fill: C.yellow,
+    stroke: C.line,
+    strokeWidth: 1.2
+  })), [[90, -40], [230, -40]].map(([x, y]) => React.createElement("circle", {
+    key: x,
+    cx: x,
+    cy: y,
+    r: 5,
+    fill: "#fff",
+    stroke: C.line,
+    strokeWidth: 1.2
+  }))), React.createElement("div", {
+    style: {
+      position: "absolute",
+      left: 0,
+      top: 0,
+      width: 22,
+      height: 22,
+      marginLeft: -11,
+      marginTop: -11,
+      borderRadius: "50%",
+      background: C.rose,
+      border: `1.6px solid ${C.line}`,
+      offsetPath: `path("${d}")`,
+      animation: "ml-path 2.4s cubic-bezier(0.65, 0, 0.35, 1) infinite alternate",
+      transform: `scale(${width / 320})`,
+      transformOrigin: "0 0"
+    }
+  }));
+}
+function Confetti({
+  items
+}) {
+  return React.createElement(React.Fragment, null, items.map((it, i) => React.createElement("div", {
+    key: i,
+    "aria-hidden": true,
+    style: {
+      position: "absolute",
+      left: it.x,
+      top: it.y,
+      width: it.s,
+      height: it.s,
+      background: it.shape === "tri" ? "none" : it.c,
+      borderRadius: it.shape === "dot" ? "50%" : 2,
+      borderLeft: it.shape === "tri" ? `${it.s / 2}px solid transparent` : undefined,
+      borderRight: it.shape === "tri" ? `${it.s / 2}px solid transparent` : undefined,
+      borderBottom: it.shape === "tri" ? `${it.s}px solid ${it.c}` : undefined,
+      ["--r"]: `${it.r || 0}deg`,
+      animation: `ml-float ${3 + (it.d || 0)}s ease-in-out ${-(i * 0.7)}s infinite`
+    }
+  })));
+}
+function MotionLecture() {
+  const rootRef = React.useRef(null);
+  const [w, setW] = React.useState(1440);
+  React.useEffect(() => {
+    const el = rootRef.current;
+    if (!el) return;
+    setW(el.getBoundingClientRect().width || 1440);
+    const ro = new ResizeObserver(([e]) => {
+      if (e.contentRect.width > 0) setW(e.contentRect.width);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const m = w < 760;
+  const pad = m ? 20 : Math.round(w * 0.04);
+  const small = {
+    fontFamily: SANS,
+    fontSize: 12,
+    lineHeight: 1.6,
+    letterSpacing: "0.02em"
+  };
+  const body = {
+    fontFamily: SANS,
+    fontSize: m ? 13 : 15,
+    lineHeight: 1.75,
+    margin: 0,
+    wordBreak: "keep-all",
+    color: C.ink
+  };
+  const titleSize = m ? 40 : Math.min(84, Math.round(w * 0.058));
+  const lessons = [{
+    n: "1",
+    title: "도형을 변형하여\n공 튀기는 모션 만들기",
+    stage: React.createElement(BouncingBall, {
+      size: m ? 44 : 56
+    }),
+    points: ["모션에 대한 기본 지식을 공이 튀는 모습을 통해 쉽게 이해할 수 있습니다.", "키프레임 어시스턴트의 Easy-Ease, Easy-In, Easy-Out을 심도 있게 이해할 수 있습니다.", "Bezier 곡선을 이해하고 활용할 수 있습니다."]
+  }, {
+    n: "2",
+    title: "시간 차를 활용하여\n그네 타는 모션 만들기",
+    stage: React.createElement(Swing, {
+      width: m ? 200 : 240
+    }),
+    points: ["실제 동영상을 통해 그네와 사람의 움직임을 단순한 동작으로 구분할 수 있습니다.", "시간 차의 개념을 심도 있게 이해할 수 있습니다.", "2등신 캐릭터의 신체 움직임과 모션블러의 원리를 이해할 수 있습니다."]
+  }, {
+    n: "3",
+    title: "듀익 바셀을 활용하여\n인체 모션 만들기",
+    stage: React.createElement(Mannequin, {
+      pose: "walk",
+      width: m ? 150 : 180
+    }),
+    points: ["<듀익 바셀> 플러그인을 이해하고 사용할 수 있습니다.", "신체의 관절을 분리하여 사고하고 정확한 관절에 모션을 줄 수 있습니다.", "Walk Cycle을 이해하고 걷는 모션을 GIF로 저장할 수 있습니다."]
+  }];
+  const confetti = [{
+    x: "8%",
+    y: "18%",
+    c: C.yellow,
+    s: 14,
+    shape: "sq",
+    r: 20
+  }, {
+    x: "46%",
+    y: "10%",
+    c: C.mint,
+    s: 12,
+    shape: "tri",
+    d: 1
+  }, {
+    x: "52%",
+    y: "78%",
+    c: C.purple,
+    s: 9,
+    shape: "dot",
+    d: 0.5
+  }, {
+    x: "90%",
+    y: "16%",
+    c: C.rose,
+    s: 12,
+    shape: "sq",
+    r: 45,
+    d: 1.4
+  }, {
+    x: "94%",
+    y: "70%",
+    c: C.yellow,
+    s: 16,
+    shape: "tri",
+    d: 0.8
+  }, {
+    x: "30%",
+    y: "86%",
+    c: C.mint,
+    s: 10,
+    shape: "dot",
+    d: 1.2
+  }];
+  return React.createElement("div", {
+    ref: rootRef,
+    style: {
+      width: "100%",
+      fontFamily: SANS,
+      color: C.ink
+    }
+  }, React.createElement("style", null, CSS), React.createElement("section", {
+    style: {
+      position: "relative",
+      overflow: "hidden",
+      background: C.paper,
+      backgroundImage: "linear-gradient(rgba(238,142,140,0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(238,142,140,0.12) 1px, transparent 1px)",
+      backgroundSize: "40px 40px",
+      padding: m ? "56px 20px 40px" : `${Math.round(w * 0.06)}px ${pad}px`,
+      display: "grid",
+      gridTemplateColumns: m ? "1fr" : "1.1fr 1fr",
+      alignItems: "center",
+      gap: m ? 24 : pad
+    }
+  }, React.createElement(Confetti, {
+    items: confetti
+  }), React.createElement("div", {
+    style: {
+      position: "relative"
+    }
+  }, React.createElement("div", {
+    style: {
+      ...small,
+      color: C.muted,
+      textTransform: "uppercase",
+      marginBottom: m ? 18 : 28
+    }
+  }, "Poster \xB7 Leaflet \xB7 Banner"), React.createElement("h2", {
+    style: {
+      margin: 0,
+      fontWeight: 800,
+      fontSize: titleSize,
+      lineHeight: 1.12,
+      letterSpacing: "-0.03em"
+    }
+  }, "2D \uBAA8\uC158 \uADF8\uB798\uD53D", React.createElement("br", null), "\uC785\uBB38 ", React.createElement("span", {
+    style: {
+      display: "inline-block",
+      background: C.purple,
+      color: "#fff",
+      borderRadius: 999,
+      padding: "0 0.28em",
+      lineHeight: 1.05
+    }
+  }, "\uBB34\uB8CC"), " \uD2B9\uAC15"), React.createElement("div", {
+    style: {
+      marginTop: m ? 14 : 20,
+      fontFamily: SERIF,
+      fontStyle: "italic",
+      fontSize: m ? 22 : 30,
+      color: C.purple,
+      borderBottom: `2px solid ${C.purple}`,
+      display: "inline-block",
+      lineHeight: 1.1
+    }
+  }, "with Designer yulim"), React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 14,
+      marginTop: m ? 28 : 48,
+      fontWeight: 800,
+      fontSize: m ? 22 : 30,
+      letterSpacing: "-0.02em"
+    }
+  }, React.createElement("span", null, "06.11"), React.createElement("span", {
+    style: {
+      width: m ? 48 : 80,
+      height: 2,
+      background: C.ink
+    }
+  }), React.createElement("span", null, "07.11"))), React.createElement("div", {
+    style: {
+      position: "relative",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "flex-end",
+      gap: m ? 8 : 24
+    }
+  }, React.createElement(Mannequin, {
+    pose: "wave",
+    width: m ? 200 : Math.min(300, Math.round(w * 0.2))
+  }), React.createElement("div", {
+    style: {
+      marginBottom: 6
+    }
+  }, React.createElement(BouncingBall, {
+    size: m ? 34 : 44
+  })))), React.createElement("section", {
+    style: {
+      padding: m ? "56px 20px" : `${Math.round(w * 0.06)}px ${pad}px`
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: m ? "1fr" : "1fr 1fr",
+      gap: m ? 28 : pad * 1.5,
+      alignItems: "center",
+      marginBottom: m ? 40 : 72
+    }
+  }, React.createElement(Reveal, null, React.createElement("div", {
+    style: {
+      ...small,
+      color: C.rose,
+      textTransform: "uppercase",
+      marginBottom: 12
+    }
+  }, "Concept"), React.createElement("p", {
+    style: body
+  }, "\uAC00\uC0C1\uC758 \uBAA8\uC158\uADF8\uB798\uD53D \uC785\uBB38 \uBB34\uB8CC \uD2B9\uAC15\uC744 \uD64D\uBCF4\uD558\uB294 \uD64D\uBCF4\uBB3C\uC744 \uC81C\uC791\uD588\uC2B5\uB2C8\uB2E4. \uC560\uD504\uD130\uC774\uD399\uD2B8\uB85C \uC6C0\uC9C1\uC784\uC744 \uC904 \uB54C \uAE30\uC900\uC774 \uB418\uB294 \uAD00\uC808\uC758 \uC704\uCE58(\uC575\uCEE4 \uD3EC\uC778\uD2B8)\uC640 \uC778\uD50C\uB8E8\uC5B8\uC2A4\uB97C \uD65C\uC6A9\uD55C \uC18D\uB3C4 \uC870\uC808\uC744 \uC2DC\uAC01\uC801\uC73C\uB85C \uB4DC\uB7EC\uB0B4, \uBAA8\uC158\uADF8\uB798\uD53D \uD2B9\uAC15\uC784\uC744 \uD45C\uD604\uD588\uC2B5\uB2C8\uB2E4."), React.createElement("p", {
+    style: {
+      ...body,
+      marginTop: 14,
+      color: C.muted
+    }
+  }, "\uC5B4\uB835\uAC8C \uB290\uAEF4\uC9C8 \uC218 \uC788\uB294 \uBAA8\uC158\uADF8\uB798\uD53D\uC744 \uBD80\uB4DC\uB7EC\uC6B4 \uD30C\uC2A4\uD154 \uADF8\uB798\uD53D\uC73C\uB85C \uCE5C\uADFC\uD558\uAC8C \uD480\uACE0, \uC120\uC744 \uC720\uC5F0\uD558\uAC8C \uADF8\uB824 \uBAA8\uC158\uAC10\uC744 \uC0B4\uB838\uC2B5\uB2C8\uB2E4.")), React.createElement(Reveal, {
+    delay: 0.15,
+    style: {
+      display: "flex",
+      justifyContent: "center"
+    }
+  }, React.createElement(BezierPath, {
+    width: m ? 280 : Math.min(420, Math.round(w * 0.28))
+  }))), React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: m ? "1fr" : "repeat(3, 1fr)",
+      gap: m ? 16 : 20
+    }
+  }, ["05", "06", "07"].map((p, i) => React.createElement(Reveal, {
+    key: p,
+    delay: i * 0.12
+  }, React.createElement("img", {
+    src: `${IMG}mo-poster-${p}.jpg`,
+    alt: `Poster ${i + 1}`,
+    loading: "lazy",
+    style: {
+      width: "100%",
+      height: "auto",
+      display: "block",
+      boxShadow: "0 24px 60px rgba(47,42,42,0.12)"
+    }
+  }))))), React.createElement("section", {
+    style: {
+      background: C.paper,
+      padding: m ? "56px 20px" : `${Math.round(w * 0.06)}px ${pad}px`
+    }
+  }, React.createElement(Reveal, null, React.createElement("div", {
+    style: {
+      ...small,
+      color: C.rose,
+      textTransform: "uppercase",
+      marginBottom: 10
+    }
+  }, "Curriculum"), React.createElement("p", {
+    style: {
+      ...body,
+      maxWidth: 560,
+      marginBottom: m ? 32 : 56
+    }
+  }, "\uD2B9\uAC15\uC5D0\uC11C \uBC30\uC6B0\uB294 \uC138 \uAC00\uC9C0 \uD575\uC2EC \uB3D9\uC791\uC744, \uB9AC\uD50C\uB81B \uC18D \uCE90\uB9AD\uD130\uC640 \uC544\uC774\uCF58 \uADF8\uB300\uB85C \uC6C0\uC9C1\uC774\uAC8C \uB9CC\uB4E4\uC5C8\uC2B5\uB2C8\uB2E4.")), React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: m ? "1fr" : "repeat(3, 1fr)",
+      gap: m ? 16 : 20
+    }
+  }, lessons.map((l, i) => React.createElement(Reveal, {
+    key: l.n,
+    delay: i * 0.12,
+    style: {
+      background: "#fff",
+      border: "1px solid rgba(47,42,42,0.08)",
+      padding: m ? 20 : 28,
+      display: "flex",
+      flexDirection: "column"
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "flex-start"
+    }
+  }, React.createElement("h3", {
+    style: {
+      margin: 0,
+      whiteSpace: "pre-line",
+      fontSize: m ? 18 : 20,
+      fontWeight: 700,
+      lineHeight: 1.4,
+      letterSpacing: "-0.02em"
+    }
+  }, l.title), React.createElement("span", {
+    style: {
+      fontWeight: 800,
+      fontSize: m ? 44 : 56,
+      lineHeight: 0.9,
+      color: C.rose
+    }
+  }, l.n)), React.createElement("div", {
+    style: {
+      height: m ? 240 : 300,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      margin: "16px 0"
+    }
+  }, l.stage), React.createElement("ul", {
+    style: {
+      listStyle: "none",
+      padding: 0,
+      margin: 0,
+      display: "flex",
+      flexDirection: "column",
+      gap: 8
+    }
+  }, l.points.map(t => React.createElement("li", {
+    key: t,
+    style: {
+      display: "flex",
+      gap: 10,
+      fontSize: 13,
+      lineHeight: 1.6,
+      wordBreak: "keep-all"
+    }
+  }, React.createElement("span", {
+    style: {
+      flexShrink: 0,
+      width: 10,
+      height: 10,
+      marginTop: 5,
+      borderRadius: "50%",
+      background: C.mint,
+      border: `1px solid ${C.line}`
+    }
+  }), t))))))), ["04", "03", "02", "01", "09"].map(p => React.createElement("img", {
+    key: p,
+    src: `${IMG}mo-board-${p}.jpg`,
+    alt: "Motion graphics lecture board",
+    loading: "lazy",
+    style: {
+      width: "100%",
+      height: "auto",
+      display: "block"
+    }
+  })));
+}(window.Guides = window.Guides || {}).MotionLecture = MotionLecture;
+})();
+(function () {
+const addPropertyControls = () => {}; const ControlType = new Proxy({}, { get: (_, k) => k });
+const IMG = "/assets/img/";
 const A = {
   wordmark: {
     red: IMG + "D3NaZsE2ifbXRjAjt0bBjryF53k.png",
