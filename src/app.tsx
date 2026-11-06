@@ -39,7 +39,17 @@ function Hero() {
     const [shown, setShown] = React.useState(false)
     const [hover, setHover] = React.useState<number | null>(null)
     const time = useSeoulTime()
-    React.useEffect(() => { const t = setTimeout(() => setShown(true), 80); return () => clearTimeout(t) }, [])
+    // Start the letter animation only once the title font has loaded, so it plays once instead of
+    // replaying when the fallback serif swaps to Instrument Serif. Give up waiting after 1.5s.
+    React.useEffect(() => {
+        let done = false
+        const go = () => { if (!done) { done = true; setTimeout(() => setShown(true), 80) } }
+        const fonts = (document as any).fonts
+        if (fonts && fonts.load) fonts.load('400 100px "Instrument Serif"').then(go, go)
+        else go()
+        const t = setTimeout(go, 1500)
+        return () => { done = true; clearTimeout(t) }
+    }, [])
 
     const narrow = w < 600
     const letters = Array.from(title)

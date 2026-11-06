@@ -42,8 +42,20 @@ function Hero() {
   const [hover, setHover] = React.useState(null);
   const time = useSeoulTime();
   React.useEffect(() => {
-    const t = setTimeout(() => setShown(true), 80);
-    return () => clearTimeout(t);
+    let done = false;
+    const go = () => {
+      if (!done) {
+        done = true;
+        setTimeout(() => setShown(true), 80);
+      }
+    };
+    const fonts = document.fonts;
+    if (fonts && fonts.load) fonts.load('400 100px "Instrument Serif"').then(go, go);else go();
+    const t = setTimeout(go, 1500);
+    return () => {
+      done = true;
+      clearTimeout(t);
+    };
   }, []);
   const narrow = w < 600;
   const letters = Array.from(title);
