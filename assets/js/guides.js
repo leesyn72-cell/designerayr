@@ -1,6 +1,112 @@
 (function () {
 const addPropertyControls = () => {}; const ControlType = new Proxy({}, { get: (_, k) => k });
 const IMG = "/assets/img/";
+function Live({
+  name,
+  ratio,
+  alt
+}) {
+  return React.createElement("div", {
+    style: {
+      position: "relative",
+      width: "100%",
+      aspectRatio: ratio
+    }
+  }, React.createElement("img", {
+    src: `${IMG}${name}.jpg`,
+    alt: alt,
+    style: {
+      position: "absolute",
+      inset: 0,
+      width: "100%",
+      height: "100%",
+      display: "block"
+    }
+  }), React.createElement("img", {
+    src: `${IMG}${name}.svg`,
+    alt: "",
+    "aria-hidden": true,
+    style: {
+      position: "absolute",
+      inset: 0,
+      width: "100%",
+      height: "100%",
+      display: "block"
+    }
+  }));
+}
+function Board({
+  file,
+  alt
+}) {
+  return React.createElement("img", {
+    src: `${IMG}${file}.jpg`,
+    alt: alt,
+    loading: "lazy",
+    style: {
+      width: "100%",
+      height: "auto",
+      display: "block"
+    }
+  });
+}
+function MotionLecture() {
+  return React.createElement("div", {
+    style: {
+      width: "100%"
+    }
+  }, React.createElement("section", {
+    style: {
+      background: "#FBF0F0",
+      padding: "clamp(32px, 7vw, 112px) clamp(20px, 6vw, 96px)",
+      display: "flex",
+      justifyContent: "center"
+    }
+  }, React.createElement("div", {
+    style: {
+      width: "100%",
+      maxWidth: 720,
+      boxShadow: "0 30px 80px rgba(60, 30, 30, 0.14)"
+    }
+  }, React.createElement(Live, {
+    name: "mo-live-poster",
+    ratio: "1207.56 / 1700.79",
+    alt: "2D \uBAA8\uC158 \uADF8\uB798\uD53D \uC785\uBB38 \uBB34\uB8CC \uD2B9\uAC15 \uD3EC\uC2A4\uD130"
+  }))), React.createElement(Live, {
+    name: "mo-live-leaflet",
+    ratio: "841.89 / 595.276",
+    alt: "\uD2B9\uAC15 \uB9AC\uD50C\uB81B \uB0B4\uC9C0"
+  }), React.createElement(Board, {
+    file: "mo-board-01",
+    alt: "\uD3EC\uC2A4\uD130\uC640 \uBC30\uB108 \uC801\uC6A9 \uBCF4\uB4DC"
+  }), React.createElement(Board, {
+    file: "mo-board-02",
+    alt: "\uB9AC\uD50C\uB81B \uBAA9\uC5C5 \uBCF4\uB4DC"
+  }), React.createElement(Board, {
+    file: "mo-board-03",
+    alt: "\uB9AC\uD50C\uB81B \uC678\uC9C0"
+  }), React.createElement("section", {
+    style: {
+      padding: "clamp(32px, 7vw, 112px) clamp(20px, 6vw, 96px)",
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit, minmax(min(280px, 100%), 1fr))",
+      gap: "clamp(16px, 3vw, 40px)"
+    }
+  }, React.createElement(Board, {
+    file: "mo-poster-05",
+    alt: "\uD3EC\uC2A4\uD130 \uC2DC\uC548"
+  }), React.createElement(Board, {
+    file: "mo-poster-07",
+    alt: "\uD3EC\uC2A4\uD130 \uC2DC\uC548"
+  })), React.createElement(Board, {
+    file: "mo-board-09",
+    alt: "\uD3EC\uC2A4\uD130 \uC801\uC6A9 \uBCF4\uB4DC"
+  }));
+}(window.Guides = window.Guides || {}).MotionLecture = MotionLecture;
+})();
+(function () {
+const addPropertyControls = () => {}; const ControlType = new Proxy({}, { get: (_, k) => k });
+const IMG = "/assets/img/";
 const A = {
   wordmark: {
     red: IMG + "D3NaZsE2ifbXRjAjt0bBjryF53k.png",
