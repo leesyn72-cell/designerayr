@@ -373,7 +373,6 @@ export default function PrunauGuideline(props: { style?: React.CSSProperties; ad
                 <Photo src={PHOTO.tangerine} alt="A box of tangerines" shade={0.42} position="60% 50%" />
                 <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: m ? 16 : 22 }}>
                     <Logo tone={{ ink: C.white, fruit: C.orange, stem: C.white }} width={Math.round(w * (m ? 0.6 : 0.3))} intro bob />
-                    <span style={{ ...small, fontSize: m ? 11 : 13, color: C.white, opacity: 0.9, letterSpacing: "0.04em" }}>지금, 가장 맛있는 과일.</span>
                 </div>
             </div>
 

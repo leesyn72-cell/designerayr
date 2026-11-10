@@ -145,12 +145,18 @@ const A = {
     black: IMG + "H9HB2EpJI4mEjhApTDfkjT44TE.png"
   }
 };
+const PHOTO = {
+  platter: "/assets/img/om-platter.jpg",
+  spread: "/assets/img/om-spread.jpg",
+  office: "/assets/img/om-office.jpg",
+  platter3: "/assets/img/om-platter3.jpg",
+  box: "/assets/img/om-box.jpg"
+};
 const COLOR = {
   red: "#F91515",
   pink: "#FFDFD7",
   black: "#0A0203"
 };
-const SERIF = '"Instrument Serif", "Times New Roman", serif';
 const SANS = '"Inter Display", "Inter", "Pretendard", system-ui, sans-serif';
 const LOGO_RATIO = 2935 / 1070;
 const CSS = `
@@ -199,6 +205,30 @@ function Reveal({
     }
   }, children);
 }
+function Ink({
+  src,
+  color,
+  label,
+  style
+}) {
+  return React.createElement("div", {
+    role: label ? "img" : undefined,
+    "aria-label": label,
+    "aria-hidden": label ? undefined : true,
+    style: {
+      position: "absolute",
+      inset: 0,
+      background: color,
+      WebkitMaskImage: `url(${src})`,
+      maskImage: `url(${src})`,
+      WebkitMaskSize: "100% 100%",
+      maskSize: "100% 100%",
+      WebkitMaskRepeat: "no-repeat",
+      maskRepeat: "no-repeat",
+      ...style
+    }
+  });
+}
 function Lockup({
   word,
   script,
@@ -209,11 +239,6 @@ function Lockup({
   const [ref, seen] = useInView(0.3);
   const on = !draw || seen;
   const wipe = (d, dur) => ({
-    position: "absolute",
-    inset: 0,
-    width: "100%",
-    height: "100%",
-    objectFit: "contain",
     clipPath: on ? "inset(0 0% 0 0)" : "inset(0 100% 0 0)",
     transition: `clip-path ${dur}s cubic-bezier(0.65, 0, 0.35, 1) ${delay + d}s`
   });
@@ -224,16 +249,16 @@ function Lockup({
       width,
       aspectRatio: `${LOGO_RATIO}`
     }
-  }, React.createElement("img", {
+  }, React.createElement(Ink, {
     src: A.wordmark[word],
-    alt: "tandanji",
-    style: wipe(0, 1.4),
-    draggable: false
-  }), React.createElement("img", {
+    color: COLOR[word],
+    label: "tandanji",
+    style: wipe(0, 1.4)
+  }), React.createElement(Ink, {
     src: A.script[script],
-    alt: "office meal",
-    style: wipe(0.75, 1.3),
-    draggable: false
+    color: COLOR[script],
+    label: "office meal",
+    style: wipe(0.75, 1.3)
   }));
 }
 function Symbol({
@@ -242,43 +267,174 @@ function Symbol({
   size,
   style
 }) {
-  return React.createElement("img", {
-    src: (solid ? A.symSolid : A.symLine)[tone],
-    alt: "O symbol",
-    draggable: false,
+  return React.createElement("div", {
     style: {
+      position: "relative",
       width: size,
       height: size,
-      display: "block",
       ...style
     }
-  });
+  }, React.createElement(Ink, {
+    src: (solid ? A.symSolid : A.symLine)[tone],
+    color: COLOR[tone],
+    label: "O symbol"
+  }));
 }
-function Label({
-  n,
+function Photo({
+  src,
+  alt,
+  shade = 0,
+  position = "50% 50%",
+  still = false
+}) {
+  const [ref, inView] = useInView(0.2);
+  const seen = still || inView;
+  return React.createElement("div", {
+    ref: ref,
+    style: {
+      position: "absolute",
+      inset: 0,
+      overflow: "hidden"
+    }
+  }, React.createElement("img", {
+    src: src,
+    alt: alt,
+    loading: "lazy",
+    draggable: false,
+    style: {
+      width: "100%",
+      height: "100%",
+      objectFit: "cover",
+      objectPosition: position,
+      display: "block",
+      transform: seen ? "scale(1)" : "scale(1.08)",
+      transition: "transform 2.4s cubic-bezier(0.16, 1, 0.3, 1)"
+    }
+  }), shade > 0 && React.createElement("div", {
+    style: {
+      position: "absolute",
+      inset: 0,
+      background: `rgba(0,0,0,${shade})`
+    }
+  }));
+}
+function SlideTitle({
   title,
-  color
+  lines,
+  color,
+  m
 }) {
   return React.createElement("div", {
     style: {
-      display: "flex",
-      gap: 14,
+      position: "absolute",
+      top: m ? 22 : "5.5%",
+      left: m ? 20 : "4%",
+      maxWidth: m ? "78%" : 320,
+      zIndex: 3,
       fontFamily: SANS,
-      fontSize: 12,
-      letterSpacing: "0.04em",
-      textTransform: "uppercase",
       color
     }
-  }, React.createElement("span", {
+  }, React.createElement("div", {
     style: {
-      opacity: 0.55
+      fontSize: 11,
+      letterSpacing: "0.04em",
+      textTransform: "uppercase",
+      textDecoration: "underline",
+      textUnderlineOffset: 3,
+      marginBottom: lines ? 10 : 0
     }
-  }, n), React.createElement("span", null, title));
+  }, title), lines && lines.map((l, i) => React.createElement("div", {
+    key: i,
+    style: {
+      fontSize: 11,
+      lineHeight: 1.6,
+      opacity: 0.7,
+      wordBreak: "keep-all"
+    }
+  }, l)));
+}
+function Slide({
+  bg,
+  color,
+  title,
+  lines,
+  m,
+  children
+}) {
+  return React.createElement("div", {
+    style: {
+      position: "relative",
+      width: "100%",
+      aspectRatio: m ? "4 / 5" : "16 / 9",
+      background: bg,
+      color,
+      overflow: "hidden"
+    }
+  }, title && React.createElement(SlideTitle, {
+    title: title,
+    lines: lines,
+    color: color,
+    m: m
+  }), React.createElement("div", {
+    style: {
+      position: "absolute",
+      inset: 0,
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center"
+    }
+  }, children));
+}
+function ColorDot({
+  c,
+  size,
+  m,
+  delay
+}) {
+  const [on, setOn] = React.useState(false);
+  return React.createElement(Reveal, {
+    delay: delay,
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      gap: m ? 10 : 18,
+      width: size
+    }
+  }, React.createElement("div", {
+    onMouseEnter: () => setOn(true),
+    onMouseLeave: () => setOn(false),
+    style: {
+      width: "100%",
+      aspectRatio: "1",
+      borderRadius: "50%",
+      background: c.hex,
+      transform: on ? "scale(1.08)" : "scale(1)",
+      transition: "transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)"
+    }
+  }), React.createElement("div", {
+    style: {
+      fontFamily: SANS,
+      fontSize: 11,
+      lineHeight: 1.6,
+      textAlign: "center",
+      color: COLOR.black
+    }
+  }, React.createElement("div", null, c.name), React.createElement("div", {
+    style: {
+      opacity: 0.6
+    }
+  }, c.hex), React.createElement("div", {
+    style: {
+      opacity: on ? 0.6 : 0,
+      transition: "opacity 0.4s ease",
+      whiteSpace: "nowrap"
+    }
+  }, "PANTONE ", c.pantone, " \xB7 RGB ", c.rgb, " \xB7 CMYK ", c.cmyk)));
 }
 function OfficeMealGuideline(props) {
   const rootRef = React.useRef(null);
   const [w, setW] = React.useState(1440);
-  const [hot, setHot] = React.useState(null);
   React.useEffect(() => {
     const el = rootRef.current;
     if (!el || typeof ResizeObserver === "undefined") return;
@@ -290,48 +446,29 @@ function OfficeMealGuideline(props) {
   }, []);
   const m = w < 760;
   const pad = m ? 20 : Math.round(w * 0.04);
-  const section = (bg, extra) => ({
-    background: bg,
-    padding: `${m ? 64 : Math.round(w * 0.07)}px ${pad}px`,
-    position: "relative",
-    overflow: "hidden",
-    ...extra
-  });
-  const big = Math.min(m ? 30 : w * 0.046, 76);
-  const body = {
+  const small = {
     fontFamily: SANS,
-    fontSize: m ? 13 : 15,
-    lineHeight: 1.75,
-    margin: 0,
-    wordBreak: "keep-all"
+    fontSize: 11,
+    lineHeight: 1.6
   };
   const colors = [{
-    tone: "red",
     name: "Office meal red",
     pantone: "2347 C",
     rgb: "249 21 21",
     cmyk: "0 94 100 0",
-    hex: "#F91515",
-    text: "#FFDFD7",
-    copy: "음식과 식욕을 자연스럽게 연상시키는 컬러로, 브랜드의 에너지와 주목성을 강화합니다."
+    hex: "#F91515"
   }, {
-    tone: "pink",
     name: "Office meal pink beige",
     pantone: "698 C",
     rgb: "255 223 215",
     cmyk: "0 15 3 0",
-    hex: "#FFDFD7",
-    text: "#F91515",
-    copy: "따뜻하고 편안한 식사 경험을 전달합니다."
+    hex: "#FFDFD7"
   }, {
-    tone: "black",
     name: "Office meal black",
     pantone: "Black 6 C",
     rgb: "10 2 3",
     cmyk: "100 61 32 96",
-    hex: "#0A0203",
-    text: "#FFDFD7",
-    copy: "정보 전달의 안정감과 전문성을 담당합니다."
+    hex: "#0A0203"
   }];
   const marqueeItem = (word, script, sym, h, key) => React.createElement("div", {
     key: key,
@@ -347,26 +484,12 @@ function OfficeMealGuideline(props) {
       height: h,
       aspectRatio: `${LOGO_RATIO}`
     }
-  }, React.createElement("img", {
+  }, React.createElement(Ink, {
     src: A.wordmark[word],
-    alt: "",
-    style: {
-      position: "absolute",
-      inset: 0,
-      width: "100%",
-      height: "100%"
-    },
-    draggable: false
-  }), React.createElement("img", {
+    color: COLOR[word]
+  }), React.createElement(Ink, {
     src: A.script[script],
-    alt: "",
-    style: {
-      position: "absolute",
-      inset: 0,
-      width: "100%",
-      height: "100%"
-    },
-    draggable: false
+    color: COLOR[script]
   })), React.createElement(Symbol, {
     tone: sym,
     solid: key % 2 === 0,
@@ -381,181 +504,174 @@ function OfficeMealGuideline(props) {
       flexDirection: "column"
     }
   }, React.createElement("style", null, CSS), React.createElement("div", {
-    style: section(COLOR.red, {
-      minHeight: m ? 520 : Math.round(w * 0.62),
+    style: {
+      position: "relative",
+      width: "100%",
+      aspectRatio: m ? "4 / 5" : "16 / 9",
+      overflow: "hidden",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center"
+    }
+  }, React.createElement(Photo, {
+    src: PHOTO.platter,
+    alt: "A Tandanji office meal on a round plate",
+    shade: 0.45,
+    position: "50% 50%"
+  }), React.createElement("div", {
+    style: {
+      position: "relative",
       display: "flex",
       flexDirection: "column",
-      justifyContent: "space-between"
-    })
-  }, React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: m ? "1fr 1fr" : "repeat(4, 1fr)",
-      gap: 16,
-      fontFamily: SANS,
-      fontSize: 12,
-      letterSpacing: "0.04em",
-      textTransform: "uppercase",
-      color: COLOR.pink
-    }
-  }, React.createElement("span", null, "Tandanji Office Meal"), React.createElement("span", {
-    style: {
-      textAlign: m ? "right" : "left"
-    }
-  }, "Brand Guidelines"), !m && React.createElement("span", null, "Logo & Color System"), !m && React.createElement("span", {
-    style: {
-      textAlign: "right"
-    }
-  }, "Ver 2.0 \u2014 2026")), React.createElement("div", {
-    style: {
-      display: "flex",
-      justifyContent: "center",
-      padding: m ? "40px 0" : 0
+      alignItems: "center",
+      gap: m ? 16 : 22
     }
   }, React.createElement(Lockup, {
     word: "pink",
     script: "pink",
-    width: m ? "86%" : "58%",
+    width: Math.round(w * (m ? 0.66 : 0.36)),
     delay: 0.2
-  })), React.createElement("div", {
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "end",
-      color: COLOR.pink,
-      fontFamily: SANS,
-      fontSize: 12,
-      letterSpacing: "0.04em",
-      textTransform: "uppercase"
-    }
-  }, React.createElement("span", null, "Logo \xB7 Symbol \xB7 Color"), React.createElement(Symbol, {
-    tone: "pink",
-    size: m ? 28 : 40,
-    style: {
-      animation: "om-spin 14s linear infinite"
-    }
   }))), React.createElement("div", {
-    style: section(COLOR.pink, {
-      color: COLOR.black
-    })
-  }, React.createElement(Label, {
-    n: "00",
-    title: "Overview",
-    color: COLOR.red
-  }), React.createElement("div", {
     style: {
       display: "grid",
-      gridTemplateColumns: m ? "1fr" : "1.4fr 1fr",
-      gap: m ? 28 : pad * 1.5,
-      marginTop: m ? 28 : 48,
-      alignItems: "end"
+      gridTemplateColumns: m ? "1fr" : "1fr 1fr",
+      gap: m ? 24 : pad,
+      padding: m ? "32px 20px" : `${Math.round(w * 0.035)}px 4%`,
+      background: "#FFFFFF",
+      color: COLOR.black,
+      borderBottom: "1px solid rgba(10,2,3,0.08)"
     }
-  }, React.createElement(Reveal, null, React.createElement("p", {
+  }, React.createElement("div", {
     style: {
-      fontFamily: SERIF,
-      fontSize: big,
-      lineHeight: 1.08,
-      margin: 0,
-      color: COLOR.red,
-      letterSpacing: "-0.01em"
+      fontFamily: SANS,
+      color: COLOR.red
     }
-  }, "A soft, handwritten script that carries tandanji\u2019s warmth into every office meal.")), React.createElement(Reveal, {
-    delay: 0.15
-  }, React.createElement("p", {
-    style: body
-  }, "office meal\uC744 \uC2A4\uD06C\uB9BD\uD2B8 \uC11C\uCCB4\uB85C \uC801\uC6A9\uD574, \uC0C1\uB2E8 tandanji \uB85C\uACE0\uC758 \uBD80\uB4DC\uB7FD\uACE0 \uC720\uAE30\uC801\uC778 \uBB34\uB4DC\uC640 \uC790\uC5F0\uC2A4\uB7FD\uAC8C \uC5F0\uACB0\uD55C \uB85C\uACE0\uC785\uB2C8\uB2E4. \uACE1\uC120\uAC10\uC774 \uAC15\uD55C \uC601\uBB38 \uC11C\uCCB4\uB294 \uAE30\uC874 \uB85C\uACE0\uC758 \uAC1C\uC131\uACFC \uCE5C\uADFC\uD55C \uC778\uC0C1\uC744 \uAC15\uC870\uD558\uACE0, \uC74C\uC2DD \uBE0C\uB79C\uB4DC\uAC00 \uAC00\uC9C4 \uB530\uB73B\uD568\uACFC \uAC10\uC131\uC801\uC778 \uBD84\uC704\uAE30\uB97C \uB354\uD569\uB2C8\uB2E4.")))), React.createElement("div", {
-    style: section("#FFFFFF")
-  }, React.createElement(Label, {
-    n: "01",
-    title: "Primary Logo",
-    color: COLOR.red
+  }, React.createElement("div", {
+    style: {
+      fontSize: m ? 18 : 22,
+      lineHeight: 1.3
+    }
+  }, "tandanji office meal \uD0C4\uB2E8\uC9C0 \uC624\uD53C\uC2A4\uBC00"), React.createElement("div", {
+    style: {
+      fontSize: m ? 18 : 22,
+      lineHeight: 1.3
+    }
+  }, "BRAND IDENTITY")), React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: m ? "1fr" : "1.6fr 1fr",
+      gap: m ? 18 : 32
+    }
+  }, React.createElement("div", {
+    style: {
+      ...small
+    }
+  }, React.createElement("div", {
+    style: {
+      color: COLOR.red,
+      marginBottom: 6,
+      letterSpacing: "0.04em"
+    }
+  }, "CONCEPT"), React.createElement("div", {
+    style: {
+      opacity: 0.75,
+      wordBreak: "keep-all"
+    }
+  }, "office meal\uC744 \uC2A4\uD06C\uB9BD\uD2B8 \uC11C\uCCB4\uB85C \uC801\uC6A9\uD574, \uC0C1\uB2E8 tandanji \uB85C\uACE0\uC758 \uBD80\uB4DC\uB7FD\uACE0 \uC720\uAE30\uC801\uC778 \uBB34\uB4DC\uC640 \uC790\uC5F0\uC2A4\uB7FD\uAC8C \uC5F0\uACB0\uD55C \uB85C\uACE0\uC785\uB2C8\uB2E4. \uACE1\uC120\uAC10\uC774 \uAC15\uD55C \uC601\uBB38 \uC11C\uCCB4\uB294 \uAE30\uC874 \uB85C\uACE0\uC758 \uAC1C\uC131\uACFC \uCE5C\uADFC\uD55C \uC778\uC0C1\uC744 \uAC15\uC870\uD558\uACE0, \uC74C\uC2DD \uBE0C\uB79C\uB4DC\uAC00 \uAC00\uC9C4 \uB530\uB73B\uD568\uACFC \uAC10\uC131\uC801\uC778 \uBD84\uC704\uAE30\uB97C \uB354\uD569\uB2C8\uB2E4.")), React.createElement("div", {
+    style: {
+      ...small
+    }
+  }, React.createElement("div", {
+    style: {
+      color: COLOR.red,
+      marginBottom: 6,
+      letterSpacing: "0.04em"
+    }
+  }, "SCOPE"), React.createElement("div", {
+    style: {
+      opacity: 0.75
+    }
+  }, "Logo \xB7 Symbol", React.createElement("br", null), "Color System")))), React.createElement("div", {
+    style: {
+      position: "relative",
+      width: "100%",
+      aspectRatio: m ? "4 / 5" : "16 / 9",
+      overflow: "hidden"
+    }
+  }, React.createElement(Photo, {
+    src: PHOTO.spread,
+    alt: "Tandanji office meal boxes laid out on a table",
+    shade: 0.42,
+    position: "50% 42%",
+    still: true
   }), React.createElement("div", {
+    style: {
+      position: "absolute",
+      left: "4%",
+      right: "4%",
+      bottom: m ? "4%" : "-2%",
+      opacity: 0.55
+    }
+  }, React.createElement(Lockup, {
+    word: "pink",
+    script: "pink",
+    width: "100%",
+    draw: false
+  }))), React.createElement(Slide, {
+    bg: "#FFFFFF",
+    color: COLOR.black,
+    m: m,
+    title: "Primary Logo",
+    lines: ["tandanji 워드마크, office meal 스크립트,", "O 심볼로 구성됩니다."]
+  }, React.createElement("div", {
     style: {
       display: "flex",
       flexDirection: m ? "column" : "row",
       alignItems: "center",
-      justifyContent: "center",
-      gap: m ? 36 : pad * 1.6,
-      padding: m ? "56px 0 40px" : `${Math.round(w * 0.08)}px 0`
+      gap: m ? 36 : Math.round(w * 0.06),
+      marginTop: m ? 40 : 0
     }
   }, React.createElement(Lockup, {
     word: "red",
     script: "black",
-    width: m ? "88%" : "52%"
+    width: Math.round(w * (m ? 0.72 : 0.4))
   }), React.createElement(Reveal, {
     delay: 1.2
   }, React.createElement(Symbol, {
     tone: "red",
     solid: true,
-    size: m ? 84 : Math.round(w * 0.085)
-  }))), React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: m ? "1fr" : "repeat(3, 1fr)",
-      gap: m ? 14 : 24,
-      borderTop: "1px solid rgba(10,2,3,0.12)",
-      paddingTop: 18
-    }
-  }, [["Wordmark", "tandanji"], ["Script", "office meal"], ["Symbol", "O"]].map(([k, v]) => React.createElement("div", {
-    key: k,
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      fontFamily: SANS,
-      fontSize: 13,
-      color: COLOR.black
-    }
-  }, React.createElement("span", {
-    style: {
-      opacity: 0.5
-    }
-  }, k), React.createElement("span", null, v))))), React.createElement("div", {
-    style: section("#F4F1EE")
-  }, React.createElement(Label, {
-    n: "02",
+    size: m ? 84 : Math.round(w * 0.075)
+  })))), React.createElement(Slide, {
+    bg: COLOR.pink,
+    color: COLOR.black,
+    m: m,
     title: "Logo Structure",
-    color: COLOR.red
-  }), React.createElement("div", {
-    style: {
-      position: "relative",
-      display: "flex",
-      justifyContent: "center",
-      padding: m ? "72px 0 88px" : `${Math.round(w * 0.075)}px 0 ${Math.round(w * 0.09)}px`
-    }
+    lines: ["굵고 둥근 tandanji 워드마크 아래로", "office meal 스크립트가 겹쳐 흐르며", "하나의 손글씨처럼 이어집니다."]
   }, React.createElement("div", {
     style: {
       position: "relative",
-      width: m ? "86%" : "50%",
+      width: m ? "78%" : "44%",
       aspectRatio: `${LOGO_RATIO}`,
-      ["--om-gap"]: m ? "22px" : `${Math.round(w * 0.03)}px`
+      marginTop: m ? 40 : 0,
+      ["--om-gap"]: m ? "20px" : `${Math.round(w * 0.028)}px`
     }
-  }, React.createElement("img", {
+  }, React.createElement(Ink, {
     src: A.wordmark.red,
-    alt: "tandanji",
-    style: {
-      position: "absolute",
-      inset: 0,
-      width: "100%",
-      height: "100%"
-    },
-    draggable: false
-  }), React.createElement("img", {
+    color: COLOR.red,
+    label: "tandanji"
+  }), React.createElement(Ink, {
     src: A.script.black,
-    alt: "office meal",
+    color: COLOR.black,
+    label: "office meal",
     style: {
-      position: "absolute",
-      inset: 0,
-      width: "100%",
-      height: "100%",
       animation: "om-split 6s cubic-bezier(0.65, 0, 0.35, 1) infinite"
-    },
-    draggable: false
+    }
   }), React.createElement("span", {
     style: {
       position: "absolute",
       left: 0,
       top: m ? -30 : -40,
-      fontFamily: SANS,
+      ...small,
       fontSize: 12,
       color: COLOR.red,
       animation: "om-label 6s ease infinite"
@@ -565,37 +681,27 @@ function OfficeMealGuideline(props) {
       position: "absolute",
       right: 0,
       bottom: m ? -46 : -64,
-      fontFamily: SANS,
+      ...small,
       fontSize: 12,
       color: COLOR.black,
       animation: "om-label 6s ease infinite"
     }
-  }, "office meal \u2014 Script"))), React.createElement("p", {
-    style: {
-      ...body,
-      maxWidth: 560,
-      color: COLOR.black,
-      opacity: 0.75
-    }
-  }, "\uAD75\uACE0 \uB465\uADFC tandanji \uC6CC\uB4DC\uB9C8\uD06C \uC544\uB798\uB85C office meal \uC2A4\uD06C\uB9BD\uD2B8\uAC00 \uACB9\uCCD0 \uD750\uB974\uBA70, \uB450 \uC11C\uCCB4\uAC00 \uD558\uB098\uC758 \uC190\uAE00\uC528\uCC98\uB7FC \uC774\uC5B4\uC9D1\uB2C8\uB2E4.")), React.createElement("div", {
-    style: section(COLOR.black, {
-      color: COLOR.pink
-    })
-  }, React.createElement(Label, {
-    n: "03",
+  }, "office meal \u2014 Script"))), React.createElement(Slide, {
+    bg: COLOR.black,
+    color: COLOR.pink,
+    m: m,
     title: "Symbol",
-    color: COLOR.pink
-  }), React.createElement("div", {
+    lines: ["O 심볼은 라인형과 면형", "두 가지로 구성됩니다."]
+  }, React.createElement("div", {
     style: {
       display: "flex",
-      justifyContent: "center",
       alignItems: "center",
-      gap: m ? 28 : pad * 2,
-      padding: m ? "64px 0" : `${Math.round(w * 0.08)}px 0`
+      gap: m ? 28 : Math.round(w * 0.08),
+      marginTop: m ? 40 : 0
     }
   }, React.createElement(Reveal, null, React.createElement(Symbol, {
     tone: "pink",
-    size: m ? 110 : Math.round(w * 0.16),
+    size: m ? 110 : Math.round(w * 0.14),
     style: {
       animation: "om-float 4s ease-in-out infinite"
     }
@@ -604,107 +710,83 @@ function OfficeMealGuideline(props) {
   }, React.createElement(Symbol, {
     tone: "pink",
     solid: true,
-    size: m ? 110 : Math.round(w * 0.16),
+    size: m ? 110 : Math.round(w * 0.14),
     style: {
       animation: "om-float 4s ease-in-out 0.6s infinite"
     }
-  }))), React.createElement("div", {
-    style: {
-      display: "flex",
-      justifyContent: "space-between",
-      fontFamily: SANS,
-      fontSize: 13,
-      opacity: 0.7,
-      gap: 16
-    }
-  }, React.createElement("span", null, "Line / Solid"), React.createElement("span", {
-    style: {
-      textAlign: "right",
-      wordBreak: "keep-all"
-    }
-  }, "O \uC2EC\uBCFC\uC740 \uB77C\uC778\uD615\uACFC \uBA74\uD615 \uB450 \uAC00\uC9C0\uB85C \uAD6C\uC131\uB429\uB2C8\uB2E4."))), React.createElement("div", {
-    style: section("#FFFFFF")
-  }, React.createElement(Label, {
-    n: "04",
-    title: "Color System",
-    color: COLOR.red
-  }), React.createElement(Reveal, null, React.createElement("p", {
-    style: {
-      ...body,
-      maxWidth: 620,
-      margin: m ? "24px 0 32px" : "32px 0 48px",
-      color: COLOR.black
-    }
-  }, "Red, Pink Beige, Black \u2014 \uC138 \uAC00\uC9C0 \uCEEC\uB7EC\uB85C \uD0C4\uB2E8\uC9C0\uBC15\uC2A4\uC640\uC758 \uC5F0\uACB0\uC131\uC744 \uC720\uC9C0\uD558\uBA74\uC11C\uB3C4, \uC2E0\uB8B0\uAC10 \uC788\uB294 \uBE0C\uB79C\uB4DC \uC774\uBBF8\uC9C0\uB97C \uB9CC\uB4ED\uB2C8\uB2E4.")), React.createElement("div", {
-    style: {
-      display: "flex",
-      flexDirection: m ? "column" : "row",
-      height: m ? "auto" : Math.round(w * 0.36),
-      gap: 0
-    },
-    onMouseLeave: () => setHot(null)
-  }, colors.map((c, i) => React.createElement("div", {
-    key: c.hex,
-    onMouseEnter: () => setHot(i),
-    style: {
-      flex: m ? "none" : hot === null ? 1 : hot === i ? 2.2 : 0.7,
-      minHeight: m ? 200 : undefined,
-      background: c.hex,
-      color: c.text,
-      padding: m ? 20 : 28,
-      display: "flex",
-      flexDirection: "column",
-      justifyContent: "space-between",
-      transition: "flex 0.8s cubic-bezier(0.16, 1, 0.3, 1)",
-      overflow: "hidden",
-      border: c.tone === "pink" ? "none" : undefined
-    }
-  }, React.createElement("div", {
-    style: {
-      fontFamily: SERIF,
-      fontSize: m ? 30 : Math.min(w * 0.03, 44),
-      lineHeight: 1,
-      whiteSpace: "nowrap"
-    }
-  }, c.name), React.createElement("div", null, React.createElement("p", {
-    style: {
-      ...body,
-      fontSize: 13,
-      marginBottom: 18,
-      maxWidth: 300,
-      opacity: hot === i || m ? 1 : 0,
-      transition: "opacity 0.5s ease"
-    }
-  }, c.copy), React.createElement("div", {
+  })))), React.createElement("div", {
     style: {
       display: "grid",
-      gridTemplateColumns: "repeat(4, auto)",
-      justifyContent: "start",
-      gap: m ? "6px 18px" : "6px 28px",
-      fontFamily: SANS,
-      fontSize: 12,
-      whiteSpace: "nowrap"
+      gridTemplateColumns: m ? "1fr" : "1fr 1fr"
     }
-  }, [["Pantone", c.pantone], ["RGB", c.rgb], ["CMYK", c.cmyk], ["HEX", c.hex]].map(([k, v]) => React.createElement("div", {
-    key: k
-  }, React.createElement("div", {
+  }, [{
+    src: PHOTO.office,
+    alt: "An office meal at a desk beside a laptop",
+    tag: "Office",
+    pos: "50% 62%"
+  }, {
+    src: PHOTO.platter3,
+    alt: "An office meal on a round plate",
+    tag: "Meal",
+    pos: "50% 50%"
+  }].map(p => React.createElement("div", {
+    key: p.tag,
     style: {
-      opacity: 0.6
+      position: "relative",
+      aspectRatio: m ? "4 / 5" : "8 / 9",
+      overflow: "hidden"
     }
-  }, k), React.createElement("div", null, v))))))))), React.createElement("div", {
-    style: section("#FFFFFF", {
-      paddingTop: 0
-    })
-  }, React.createElement(Label, {
-    n: "05",
-    title: "Logo on Color",
-    color: COLOR.red
+  }, React.createElement(Photo, {
+    src: p.src,
+    alt: p.alt,
+    shade: 0.12,
+    position: p.pos
   }), React.createElement("div", {
     style: {
-      display: "grid",
-      gridTemplateColumns: m ? "1fr" : "repeat(3, 1fr)",
-      gap: 8,
-      marginTop: 24
+      position: "absolute",
+      left: m ? 20 : "8%",
+      bottom: m ? 20 : "7%",
+      ...small,
+      color: "#FFFFFF"
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: 11,
+      letterSpacing: "0.04em",
+      textTransform: "uppercase",
+      textDecoration: "underline",
+      textUnderlineOffset: 3
+    }
+  }, p.tag))))), React.createElement(Slide, {
+    bg: "#FFFFFF",
+    color: COLOR.black,
+    m: m,
+    title: "Color System",
+    lines: ["Red, Pink Beige, Black —", "탄단지박스와의 연결성을 유지하면서도", "신뢰감 있는 브랜드 이미지를 만듭니다."]
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "flex-start",
+      gap: m ? 10 : Math.round(w * 0.04),
+      marginTop: m ? 40 : 0
+    }
+  }, colors.map((c, i) => React.createElement(ColorDot, {
+    key: c.hex,
+    c: c,
+    size: `${Math.round(w * (m ? 0.22 : 0.13))}px`,
+    m: m,
+    delay: i * 0.15
+  })))), React.createElement(Slide, {
+    bg: COLOR.pink,
+    color: COLOR.black,
+    m: m,
+    title: "Logo on Color",
+    lines: ["배경색에 따라 지정된 로고 조합을 사용합니다."]
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: m ? 6 : Math.round(w * 0.012),
+      marginTop: m ? 40 : 0
     }
   }, [["red", "pink", "pink"], ["pink", "red", "black"], ["black", "pink", "pink"]].map(([bg, word, script], i) => React.createElement(Reveal, {
     key: bg,
@@ -712,12 +794,14 @@ function OfficeMealGuideline(props) {
   }, React.createElement("div", {
     style: {
       background: COLOR[bg],
-      aspectRatio: m ? "4 / 3" : "3 / 4",
+      width: Math.round(w * (m ? 0.27 : 0.16)),
+      aspectRatio: "3 / 4",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
       justifyContent: "center",
-      gap: 28
+      gap: m ? 12 : 22,
+      boxShadow: bg === "pink" ? "inset 0 0 0 1px rgba(10,2,3,0.08)" : "none"
     }
   }, React.createElement(Lockup, {
     word: word,
@@ -727,12 +811,56 @@ function OfficeMealGuideline(props) {
   }), React.createElement(Symbol, {
     tone: word,
     solid: i !== 1,
-    size: m ? 40 : Math.round(w * 0.035)
+    size: m ? 20 : Math.round(w * 0.026)
   })))))), React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: m ? "1fr" : "1fr 1fr"
+    }
+  }, React.createElement("div", {
+    style: {
+      position: "relative",
+      aspectRatio: m ? "4 / 5" : "8 / 9",
+      overflow: "hidden"
+    }
+  }, React.createElement(Photo, {
+    src: PHOTO.box,
+    alt: "Office meal packaging mockup",
+    position: "50% 50%"
+  })), React.createElement("div", {
+    style: {
+      position: "relative",
+      aspectRatio: m ? "4 / 3" : "8 / 9",
+      background: COLOR.red,
+      color: COLOR.pink,
+      display: "flex",
+      flexDirection: "column",
+      justifyContent: "center",
+      padding: m ? "0 24px" : "0 12%"
+    }
+  }, React.createElement(Reveal, null, React.createElement("div", {
+    style: {
+      fontFamily: SANS,
+      fontWeight: 600,
+      fontSize: m ? 24 : Math.min(44, Math.round(w * 0.03)),
+      lineHeight: 1.35,
+      letterSpacing: "-0.02em",
+      wordBreak: "keep-all"
+    }
+  }, "A soft, handwritten script that carries tandanji\u2019s warmth into every office meal."), React.createElement("div", {
+    style: {
+      ...small,
+      fontSize: m ? 11 : 12,
+      marginTop: m ? 18 : 28,
+      letterSpacing: "0.04em",
+      opacity: 0.85,
+      textTransform: "uppercase"
+    }
+  }, "Tandanji Office Meal")))), React.createElement("div", {
     style: {
       background: COLOR.red,
       overflow: "hidden",
-      padding: `${m ? 28 : 44}px 0`
+      padding: `${m ? 16 : 26}px 0`
     }
   }, React.createElement("div", {
     style: {
@@ -742,11 +870,11 @@ function OfficeMealGuideline(props) {
     }
   }, Array.from({
     length: 8
-  }, (_, i) => marqueeItem("pink", "pink", "pink", m ? 56 : 96, i)))), React.createElement("div", {
+  }, (_, i) => marqueeItem("pink", "pink", "pink", m ? 34 : 56, i)))), React.createElement("div", {
     style: {
       background: COLOR.pink,
       overflow: "hidden",
-      padding: `${m ? 28 : 44}px 0`
+      padding: `${m ? 16 : 26}px 0`
     }
   }, React.createElement("div", {
     style: {
@@ -756,28 +884,35 @@ function OfficeMealGuideline(props) {
     }
   }, Array.from({
     length: 8
-  }, (_, i) => marqueeItem("red", "black", "red", m ? 56 : 96, i)))), React.createElement("div", {
-    style: section(COLOR.black, {
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "center",
-      gap: 28,
-      textAlign: "center"
-    })
+  }, (_, i) => marqueeItem("red", "black", "red", m ? 34 : 56, i)))), React.createElement(Slide, {
+    bg: COLOR.black,
+    color: COLOR.pink,
+    m: m
   }, React.createElement(Lockup, {
     word: "pink",
     script: "pink",
-    width: m ? "62%" : "30%"
-  }), React.createElement("span", {
+    width: m ? "64%" : "34%",
+    delay: 0.2
+  }), React.createElement("div", {
     style: {
-      fontFamily: SANS,
-      fontSize: 12,
-      letterSpacing: "0.04em",
-      textTransform: "uppercase",
+      position: "absolute",
+      left: m ? 20 : "4%",
+      bottom: m ? 20 : "5.5%",
+      ...small,
       color: COLOR.pink,
-      opacity: 0.7
+      letterSpacing: "0.04em",
+      textTransform: "uppercase"
     }
-  }, "Logo & Color System \xB7 2026")));
+  }, "Logo & Color System \xB7 2026"), React.createElement(Symbol, {
+    tone: "pink",
+    size: m ? 24 : 34,
+    style: {
+      position: "absolute",
+      right: m ? 20 : "4%",
+      bottom: m ? 20 : "5.5%",
+      animation: "om-spin 14s linear infinite"
+    }
+  })));
 }
 addPropertyControls(OfficeMealGuideline, {});(window.Guides = window.Guides || {}).OfficeMealGuideline = OfficeMealGuideline;
 })();
@@ -1583,15 +1718,7 @@ function PrunauGuideline(props) {
     width: Math.round(w * (m ? 0.6 : 0.3)),
     intro: true,
     bob: true
-  }), React.createElement("span", {
-    style: {
-      ...small,
-      fontSize: m ? 11 : 13,
-      color: C.white,
-      opacity: 0.9,
-      letterSpacing: "0.04em"
-    }
-  }, "\uC9C0\uAE08, \uAC00\uC7A5 \uB9DB\uC788\uB294 \uACFC\uC77C."))), React.createElement("div", {
+  }))), React.createElement("div", {
     style: {
       display: "grid",
       gridTemplateColumns: m ? "1fr" : "1fr 1fr",
