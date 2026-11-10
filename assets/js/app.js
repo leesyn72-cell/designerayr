@@ -336,7 +336,7 @@ function SiteHeader() {
     className: "site-header"
   }, React.createElement("p", {
     className: "tag"
-  }, "Graphic designer based in Korea,", React.createElement("br", null), "working across brand, editorial and posters."), React.createElement("a", {
+  }, "Graphic designer based in Korea,", React.createElement("br", null), "working across brand identity and posters."), React.createElement("a", {
     href: "/",
     className: "brand"
   }, React.createElement("span", {
@@ -447,7 +447,7 @@ function WorkPage() {
     className: "work-head"
   }, React.createElement("h1", null, "Selected Works", React.createElement("sup", null, "(", SITE.projects.length, ")")), React.createElement("span", {
     className: "cats"
-  }, "Brand \xB7 Packaging \xB7 Editorial \xB7 Poster")), React.createElement("div", {
+  }, "Brand \xB7 Poster")), React.createElement("div", {
     className: "grid"
   }, SITE.projects.map(p => React.createElement(Card, {
     key: p.slug,

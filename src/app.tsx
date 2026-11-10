@@ -216,7 +216,7 @@ function Carousel() {
 function SiteHeader() {
     return (
         <header className="site-header">
-            <p className="tag">Graphic designer based in Korea,<br />working across brand, editorial and posters.</p>
+            <p className="tag">Graphic designer based in Korea,<br />working across brand identity and posters.</p>
             <a href="/" className="brand"><span aria-hidden>✦</span> {SITE.name}</a>
             <nav>
                 <a href="/work/">Work</a>
@@ -315,7 +315,7 @@ function WorkPage() {
             <main className="work-page">
                 <div className="work-head">
                     <h1>Selected Works<sup>({SITE.projects.length})</sup></h1>
-                    <span className="cats">Brand · Packaging · Editorial · Poster</span>
+                    <span className="cats">Brand · Poster</span>
                 </div>
                 <div className="grid">{SITE.projects.map((p) => <Card key={p.slug} p={p} />)}</div>
             </main>
