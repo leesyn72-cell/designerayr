@@ -3,83 +3,83 @@ const addPropertyControls = () => {}; const ControlType = new Proxy({}, { get: (
 const IMG = "/assets/img/";
 const PAGES = [{
   file: "mo-layout-1",
-  ratio: "1920 / 6779.04",
+  ratio: "1920 / 6339.04",
   alt: "2D 모션 그래픽 입문 무료 특강 포스터와 리플렛"
 }, {
   file: "mo-layout-2",
-  ratio: "1920 / 3051.93",
+  ratio: "1920 / 2891.93",
   alt: "2D 모션 그래픽 입문 무료 특강 세로형 배너"
 }];
 const LAYERS = [{
   name: "mo-sit-1",
   page: 0,
   left: 52.3952,
-  top: 2.8114,
+  top: 3.0065,
   width: 15.6835,
-  height: 6.0263
+  height: 6.4446
 }, {
   name: "mo-sit-2",
   page: 0,
   left: 70.2656,
-  top: 58.6676,
+  top: 55.7987,
   width: 7.7083,
-  height: 2.9635
+  height: 3.1692
 }, {
   name: "mo-sit-3",
   page: 0,
   left: 80.4313,
-  top: 29.8992,
+  top: 27.7152,
   width: 10.6063,
-  height: 4.0764
+  height: 4.3593
 }, {
   name: "mo-sit-4",
   page: 1,
   left: 78.6744,
-  top: 32.1255,
+  top: 28.3703,
   width: 6.2085,
-  height: 5.2984
+  height: 5.5915
 }, {
   name: "mo-swing-5",
   page: 0,
   left: 40.4129,
-  top: 68.4507,
+  top: 66.2608,
   width: 26.6846,
-  height: 6.3203
+  height: 6.759
 }, {
   name: "mo-swing-6",
   page: 0,
   left: 64.5636,
   top: 0,
   width: 35.4364,
-  height: 9.1797
+  height: 9.8169
 }, {
   name: "mo-swing-7",
   page: 0,
   left: 21.8817,
-  top: 43.782,
+  top: 42.5616,
   width: 54.6898,
-  height: 7.3047
+  height: 7.8117
 }, {
   name: "mo-dangle-1",
   page: 0,
   left: 62.5283,
-  top: 70.9844,
+  top: 68.9704,
   width: 15.0683,
-  height: 6.3581
+  height: 6.7994
 }, {
   name: "mo-dangle-2",
   page: 0,
   left: 1.6335,
-  top: 62.2346,
+  top: 59.6133,
   width: 21.061,
-  height: 8.8858
+  height: 9.5026
 }, {
   name: "mo-walk-1",
   page: 0,
   left: 63.8802,
-  top: 79.6248,
+  top: 78.2105,
   width: 34.7969,
-  height: 4.6068
+  height: 4.9266
 }];
 function MotionLecture() {
   return React.createElement("div", {
