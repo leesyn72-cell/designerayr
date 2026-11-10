@@ -14,7 +14,7 @@ const PHOTO = {
     spread: "/assets/img/om-spread.jpg",
     office: "/assets/img/om-office.jpg",
     platter3: "/assets/img/om-platter3.jpg",
-    box: "/assets/img/om-box.jpg",
+    team: "/assets/img/om-team.jpg",
 }
 
 type Tone = "red" | "pink" | "black"
@@ -172,6 +172,12 @@ export default function OfficeMealGuideline(props: { style?: React.CSSProperties
         { name: "Office meal black", pantone: "Black 6 C", rgb: "10 2 3", cmyk: "100 61 32 96", hex: "#0A0203" },
     ]
 
+    // Logo bands: each half of the strip must be wider than the screen, or a gap opens before the loop restarts.
+    // One item is the lockup plus the symbol and gaps, about 4.2 × its height wide; keep the count even so the
+    // line/solid symbols alternate the same way in both halves.
+    const bandH = m ? 24 : 36
+    const bandCount = Math.ceil(w / (bandH * 4.1) / 2) * 2 + 2
+
     const marqueeItem = (word: Tone, script: Tone, sym: Tone, h: number, key: number) => (
         <div key={key} style={{ display: "flex", alignItems: "center", gap: h * 0.5, paddingRight: h * 0.5 }}>
             <div style={{ position: "relative", height: h, aspectRatio: `${LOGO_RATIO}` }}>
@@ -284,10 +290,10 @@ export default function OfficeMealGuideline(props: { style?: React.CSSProperties
                 </div>
             </Slide>
 
-            {/* Photo split: the packaging beside the brand line */}
+            {/* Photo split: colleagues sharing office meals at a cafeteria table, beside the brand line */}
             <div style={{ display: "grid", gridTemplateColumns: m ? "1fr" : "1fr 1fr" }}>
                 <div style={{ position: "relative", aspectRatio: m ? "4 / 5" : "8 / 9", overflow: "hidden" }}>
-                    <Photo src={PHOTO.box} alt="Office meal packaging mockup" position="50% 50%" />
+                    <Photo src={PHOTO.team} alt="Colleagues sharing Tandanji office meals at an office cafeteria table" position="50% 58%" />
                 </div>
                 <div style={{ position: "relative", aspectRatio: m ? "4 / 3" : "8 / 9", background: COLOR.red, color: COLOR.pink, display: "flex", flexDirection: "column", justifyContent: "center", padding: m ? "0 24px" : "0 12%" }}>
                     <Reveal>
@@ -298,14 +304,14 @@ export default function OfficeMealGuideline(props: { style?: React.CSSProperties
             </div>
 
             {/* Motion band */}
-            <div style={{ background: COLOR.red, overflow: "hidden", padding: `${m ? 16 : 26}px 0` }}>
+            <div style={{ background: COLOR.red, overflow: "hidden", padding: `${m ? 10 : 16}px 0` }}>
                 <div style={{ display: "flex", width: "max-content", animation: "om-marquee 28s linear infinite" }}>
-                    {Array.from({ length: 8 }, (_, i) => marqueeItem("pink", "pink", "pink", m ? 34 : 56, i))}
+                    {Array.from({ length: bandCount * 2 }, (_, i) => marqueeItem("pink", "pink", "pink", bandH, i))}
                 </div>
             </div>
-            <div style={{ background: COLOR.pink, overflow: "hidden", padding: `${m ? 16 : 26}px 0` }}>
+            <div style={{ background: COLOR.pink, overflow: "hidden", padding: `${m ? 10 : 16}px 0` }}>
                 <div style={{ display: "flex", width: "max-content", animation: "om-marquee-rev 32s linear infinite" }}>
-                    {Array.from({ length: 8 }, (_, i) => marqueeItem("red", "black", "red", m ? 34 : 56, i))}
+                    {Array.from({ length: bandCount * 2 }, (_, i) => marqueeItem("red", "black", "red", bandH, i))}
                 </div>
             </div>
 

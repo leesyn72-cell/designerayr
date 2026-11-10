@@ -150,7 +150,7 @@ const PHOTO = {
   spread: "/assets/img/om-spread.jpg",
   office: "/assets/img/om-office.jpg",
   platter3: "/assets/img/om-platter3.jpg",
-  box: "/assets/img/om-box.jpg"
+  team: "/assets/img/om-team.jpg"
 };
 const COLOR = {
   red: "#F91515",
@@ -470,6 +470,8 @@ function OfficeMealGuideline(props) {
     cmyk: "100 61 32 96",
     hex: "#0A0203"
   }];
+  const bandH = m ? 24 : 36;
+  const bandCount = Math.ceil(w / (bandH * 4.1) / 2) * 2 + 2;
   const marqueeItem = (word, script, sym, h, key) => React.createElement("div", {
     key: key,
     style: {
@@ -824,9 +826,9 @@ function OfficeMealGuideline(props) {
       overflow: "hidden"
     }
   }, React.createElement(Photo, {
-    src: PHOTO.box,
-    alt: "Office meal packaging mockup",
-    position: "50% 50%"
+    src: PHOTO.team,
+    alt: "Colleagues sharing Tandanji office meals at an office cafeteria table",
+    position: "50% 58%"
   })), React.createElement("div", {
     style: {
       position: "relative",
@@ -860,7 +862,7 @@ function OfficeMealGuideline(props) {
     style: {
       background: COLOR.red,
       overflow: "hidden",
-      padding: `${m ? 16 : 26}px 0`
+      padding: `${m ? 10 : 16}px 0`
     }
   }, React.createElement("div", {
     style: {
@@ -869,12 +871,12 @@ function OfficeMealGuideline(props) {
       animation: "om-marquee 28s linear infinite"
     }
   }, Array.from({
-    length: 8
-  }, (_, i) => marqueeItem("pink", "pink", "pink", m ? 34 : 56, i)))), React.createElement("div", {
+    length: bandCount * 2
+  }, (_, i) => marqueeItem("pink", "pink", "pink", bandH, i)))), React.createElement("div", {
     style: {
       background: COLOR.pink,
       overflow: "hidden",
-      padding: `${m ? 16 : 26}px 0`
+      padding: `${m ? 10 : 16}px 0`
     }
   }, React.createElement("div", {
     style: {
@@ -883,8 +885,8 @@ function OfficeMealGuideline(props) {
       animation: "om-marquee-rev 32s linear infinite"
     }
   }, Array.from({
-    length: 8
-  }, (_, i) => marqueeItem("red", "black", "red", m ? 34 : 56, i)))), React.createElement(Slide, {
+    length: bandCount * 2
+  }, (_, i) => marqueeItem("red", "black", "red", bandH, i)))), React.createElement(Slide, {
     bg: COLOR.black,
     color: COLOR.pink,
     m: m
