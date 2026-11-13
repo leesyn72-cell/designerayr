@@ -151,3 +151,31 @@ p { margin: 0; }
     .proj-head { padding-top: 112px; }
     .carousel-wrap { height: 520px; }
 }
+
+/* ---------- Project overview (same block on every project) ---------- */
+.ph-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 64px; align-items: end; margin-top: 16px; }
+.ph-lede { margin: 24px 0 0; font-size: 15px; line-height: 1.7; color: #3b3b3b; font-weight: 500; max-width: 520px; word-break: keep-all; }
+.ph-facts { margin: 0; border-top: 1px solid var(--ink); }
+.ph-facts > div { display: grid; grid-template-columns: 140px 1fr; gap: 16px; padding: 13px 0; border-bottom: 1px solid var(--line); font-size: 14px; line-height: 1.5; font-weight: 500; }
+.ph-facts dt { color: var(--muted); font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; padding-top: 2px; }
+.ph-facts dd { margin: 0; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.ph-logo { display: block; height: 18px; width: auto; -webkit-mask-size: 100% 100%; mask-size: 100% 100%; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; }
+@media (max-width: 1199px) { .ph-grid { grid-template-columns: 1fr; gap: 36px; } }
+@media (max-width: 809px) { .ph-facts > div { grid-template-columns: 110px 1fr; } .ph-lede { font-size: 14px; } }
+
+/* ---------- Company / personal split ---------- */
+.work-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.work-tabs a { padding: 8px 14px; border: 1px solid var(--line); border-radius: 999px; font-size: 13px; font-weight: 500; color: var(--muted); transition: background 0.2s, color 0.2s, border-color 0.2s; }
+.work-tabs a sup { font-size: 10px; margin-left: 3px; }
+.work-tabs a:hover { color: var(--ink); border-color: #cfcfcf; }
+.work-tabs a.on { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.card .kind { display: flex; align-items: center; gap: 6px; margin-top: 4px; font-size: 12px; font-weight: 500; color: var(--caption); }
+.card .kind .dot, .ph-kind::before { width: 6px; height: 6px; border-radius: 50%; background: #1f6feb; }
+.card .kind .dot.personal, .ph-kind.personal::before { background: #ff6a3d; }
+.ph-kind { display: inline-flex; align-items: center; gap: 8px; }
+.ph-kind::before { content: ""; display: block; }
+.ph-contrib { display: flex; align-items: center; gap: 12px; width: 100%; max-width: 260px; }
+.ph-contrib b { font-weight: 600; min-width: 40px; }
+.ph-contrib i { flex: 1; height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.ph-contrib em { display: block; height: 100%; background: var(--ink); }
+.others .card .kind { font-size: 11px; }

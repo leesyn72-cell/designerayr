@@ -1,7 +1,15 @@
 // Portfolio site: home, work, project and about pages.
 // Compiled by tools/build.sh into assets/js/app.js. React comes from the UMD build (global `React`).
 
-type Project = { slug: string; title: string; field: string; deliverable: string; year: string; cover: string; intro: string; body: [string, number, number][]; behance?: string; guide?: string }
+type Project = { slug: string; title: string; field: string; deliverable: string; year: string; cover: string; intro: string; body: [string, number, number][]; behance?: string; guide?: string
+    // Shown in every project header. A logo is an image file; with `mask` it is used as a mask filled with that colour.
+    client?: { name: string; logo?: string; ratio?: number; mask?: string }
+    facts?: [string, string][]
+    // Company projects are done at ABBG (96% contribution); personal projects are 100% mine.
+    kind?: "company" | "personal"; contribution?: number }
+const kindOf = (p: Project) => p.kind || "company"
+const contributionOf = (p: Project) => p.contribution ?? (kindOf(p) === "personal" ? 100 : 96)
+const KIND_LABEL = { company: "Company Project · ABBG", personal: "Personal Project" }
 const SITE = (window as any).SITE as { name: string; behance: string; tagline: string; hero: { title: string; name: string; role: string }; profile: any; carousel: string[]; projects: Project[] }
 const IMG = "/assets/img/"
 const MONO = 'ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace'
@@ -292,6 +300,7 @@ function Card({ p }: { p: Project }) {
         <a className="card" href={projectUrl(p.slug)}>
             <div className="cover"><img src={IMG + p.cover} alt={p.title} loading="lazy" /></div>
             <div className="cap"><span>{p.title}</span><span className="f">{p.field}</span></div>
+            <div className="kind"><span className={`dot ${kindOf(p)}`} />{kindOf(p) === "company" ? "ABBG" : "Personal"} · {contributionOf(p)}%</div>
         </a>
     )
 }
@@ -309,17 +318,64 @@ function HomePage() {
 }
 
 function WorkPage() {
+    // The filter lives in the URL hash (#company / #personal) so a filtered view can be linked to.
+    const read = () => { const h = location.hash.slice(1); return h === "company" || h === "personal" ? h : "all" }
+    const [tab, setTab] = React.useState<"all" | "company" | "personal">(read)
+    React.useEffect(() => { const on = () => setTab(read()); window.addEventListener("hashchange", on); return () => window.removeEventListener("hashchange", on) }, [])
+    const count = (k: string) => SITE.projects.filter((p) => k === "all" || kindOf(p) === k).length
+    const shown = SITE.projects.filter((p) => tab === "all" || kindOf(p) === tab)
+    const tabs: [typeof tab, string][] = [["all", "All"], ["company", "Company · ABBG"], ["personal", "Personal"]]
     return (
         <>
             <SiteHeader />
             <main className="work-page">
                 <div className="work-head">
-                    <h1>Selected Works<sup>({SITE.projects.length})</sup></h1>
-                    <span className="cats">Brand · Poster</span>
+                    <h1>Selected Works<sup>({shown.length})</sup></h1>
+                    <div className="work-tabs" role="tablist">
+                        {tabs.map(([k, label]) => (
+                            <a key={k} role="tab" aria-selected={tab === k} className={tab === k ? "on" : ""} href={k === "all" ? "#" : `#${k}`} onClick={(e) => { e.preventDefault(); history.replaceState(null, "", k === "all" ? location.pathname : `#${k}`); setTab(k) }}>
+                                {label}<sup>{count(k)}</sup>
+                            </a>
+                        ))}
+                    </div>
                 </div>
-                <div className="grid">{SITE.projects.map((p) => <Card key={p.slug} p={p} />)}</div>
+                <div className="grid">{shown.map((p) => <Card key={p.slug} p={p} />)}</div>
             </main>
         </>
+    )
+}
+
+/** The same overview block on every project: title and summary on the left, the facts on the right. */
+function ProjectHead({ p }: { p: Project }) {
+    const c = p.client
+    const logo = c && c.logo
+        ? c.mask
+            ? <span role="img" aria-label={c.name} className="ph-logo" style={{ aspectRatio: `${c.ratio || 4}`, background: c.mask, WebkitMaskImage: `url(${IMG}${c.logo})`, maskImage: `url(${IMG}${c.logo})` }} />
+            : <img className="ph-logo" src={IMG + c.logo} alt={c.name} style={{ aspectRatio: `${c.ratio || 4}` }} />
+        : null
+    const pct = contributionOf(p)
+    const rows: [string, React.ReactNode][] = []
+    rows.push(["Project", <span className={`ph-kind ${kindOf(p)}`}>{KIND_LABEL[kindOf(p)]}</span>])
+    rows.push(["Contribution", <span className="ph-contrib"><b>{pct}%</b><i><em style={{ width: `${pct}%` }} /></i></span>])
+    if (c) rows.push(["Client", <>{logo}<span>{c.name}</span></>])
+    rows.push(["Field", p.field], ["Deliverable", p.deliverable])
+    ;(p.facts || []).forEach((f) => rows.push(f))
+    rows.push(["Year", p.year])
+    return (
+        <section className="proj-head">
+            <a className="back" href="/work/">← All projects</a>
+            <div className="ph-grid">
+                <div>
+                    <h1>{p.title}</h1>
+                    <p className="ph-lede pre">{p.intro}</p>
+                </div>
+                <dl className="ph-facts">
+                    {rows.map(([k, v]) => (
+                        <div key={k}><dt>{k}</dt><dd>{v}</dd></div>
+                    ))}
+                </dl>
+            </div>
+        </section>
     )
 }
 
@@ -331,15 +387,7 @@ function ProjectPage({ slug }: { slug: string }) {
         <>
             <SiteHeader />
             <main>
-                <section className="proj-head">
-                    <a className="back" href="/work/">← All projects</a>
-                    <h1>{p.title}<sup>{p.year}</sup></h1>
-                    <p className="proj-intro pre">{p.intro}</p>
-                    <div className="meta">
-                        <div><span>Field</span>{p.field}</div>
-                        <div><span>Deliverable</span>{p.deliverable}</div>
-                    </div>
-                </section>
+                <ProjectHead p={p} />
                 {Guide && <Guide />}
                 {p.body.length > 0 && (
                     <div className="body-imgs">

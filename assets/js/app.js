@@ -1,4 +1,10 @@
 (function () {
+const kindOf = p => p.kind || "company";
+const contributionOf = p => p.contribution ?? (kindOf(p) === "personal" ? 100 : 96);
+const KIND_LABEL = {
+  company: "Company Project · ABBG",
+  personal: "Personal Project"
+};
 const SITE = window.SITE;
 const IMG = "/assets/img/";
 const MONO = 'ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace';
@@ -435,24 +441,106 @@ function Card({
     className: "cap"
   }, React.createElement("span", null, p.title), React.createElement("span", {
     className: "f"
-  }, p.field)));
+  }, p.field)), React.createElement("div", {
+    className: "kind"
+  }, React.createElement("span", {
+    className: `dot ${kindOf(p)}`
+  }), kindOf(p) === "company" ? "ABBG" : "Personal", " \xB7 ", contributionOf(p), "%"));
 }
 function HomePage() {
   return React.createElement(React.Fragment, null, React.createElement(Hero, null), React.createElement(Carousel, null), React.createElement(Profile, null));
 }
 function WorkPage() {
+  const read = () => {
+    const h = location.hash.slice(1);
+    return h === "company" || h === "personal" ? h : "all";
+  };
+  const [tab, setTab] = React.useState(read);
+  React.useEffect(() => {
+    const on = () => setTab(read());
+    window.addEventListener("hashchange", on);
+    return () => window.removeEventListener("hashchange", on);
+  }, []);
+  const count = k => SITE.projects.filter(p => k === "all" || kindOf(p) === k).length;
+  const shown = SITE.projects.filter(p => tab === "all" || kindOf(p) === tab);
+  const tabs = [["all", "All"], ["company", "Company · ABBG"], ["personal", "Personal"]];
   return React.createElement(React.Fragment, null, React.createElement(SiteHeader, null), React.createElement("main", {
     className: "work-page"
   }, React.createElement("div", {
     className: "work-head"
-  }, React.createElement("h1", null, "Selected Works", React.createElement("sup", null, "(", SITE.projects.length, ")")), React.createElement("span", {
-    className: "cats"
-  }, "Brand \xB7 Poster")), React.createElement("div", {
+  }, React.createElement("h1", null, "Selected Works", React.createElement("sup", null, "(", shown.length, ")")), React.createElement("div", {
+    className: "work-tabs",
+    role: "tablist"
+  }, tabs.map(([k, label]) => React.createElement("a", {
+    key: k,
+    role: "tab",
+    "aria-selected": tab === k,
+    className: tab === k ? "on" : "",
+    href: k === "all" ? "#" : `#${k}`,
+    onClick: e => {
+      e.preventDefault();
+      history.replaceState(null, "", k === "all" ? location.pathname : `#${k}`);
+      setTab(k);
+    }
+  }, label, React.createElement("sup", null, count(k)))))), React.createElement("div", {
     className: "grid"
-  }, SITE.projects.map(p => React.createElement(Card, {
+  }, shown.map(p => React.createElement(Card, {
     key: p.slug,
     p: p
   })))));
+}
+function ProjectHead({
+  p
+}) {
+  const c = p.client;
+  const logo = c && c.logo ? c.mask ? React.createElement("span", {
+    role: "img",
+    "aria-label": c.name,
+    className: "ph-logo",
+    style: {
+      aspectRatio: `${c.ratio || 4}`,
+      background: c.mask,
+      WebkitMaskImage: `url(${IMG}${c.logo})`,
+      maskImage: `url(${IMG}${c.logo})`
+    }
+  }) : React.createElement("img", {
+    className: "ph-logo",
+    src: IMG + c.logo,
+    alt: c.name,
+    style: {
+      aspectRatio: `${c.ratio || 4}`
+    }
+  }) : null;
+  const pct = contributionOf(p);
+  const rows = [];
+  rows.push(["Project", React.createElement("span", {
+    className: `ph-kind ${kindOf(p)}`
+  }, KIND_LABEL[kindOf(p)])]);
+  rows.push(["Contribution", React.createElement("span", {
+    className: "ph-contrib"
+  }, React.createElement("b", null, pct, "%"), React.createElement("i", null, React.createElement("em", {
+    style: {
+      width: `${pct}%`
+    }
+  })))]);
+  if (c) rows.push(["Client", React.createElement(React.Fragment, null, logo, React.createElement("span", null, c.name))]);
+  rows.push(["Field", p.field], ["Deliverable", p.deliverable]);
+  (p.facts || []).forEach(f => rows.push(f));
+  rows.push(["Year", p.year]);
+  return React.createElement("section", {
+    className: "proj-head"
+  }, React.createElement("a", {
+    className: "back",
+    href: "/work/"
+  }, "\u2190 All projects"), React.createElement("div", {
+    className: "ph-grid"
+  }, React.createElement("div", null, React.createElement("h1", null, p.title), React.createElement("p", {
+    className: "ph-lede pre"
+  }, p.intro)), React.createElement("dl", {
+    className: "ph-facts"
+  }, rows.map(([k, v]) => React.createElement("div", {
+    key: k
+  }, React.createElement("dt", null, k), React.createElement("dd", null, v))))));
 }
 function ProjectPage({
   slug
@@ -460,16 +548,9 @@ function ProjectPage({
   const p = SITE.projects.find(x => x.slug === slug);
   const Guide = p.guide ? window.Guides?.[p.guide] : null;
   const others = SITE.projects.filter(x => x.slug !== slug);
-  return React.createElement(React.Fragment, null, React.createElement(SiteHeader, null), React.createElement("main", null, React.createElement("section", {
-    className: "proj-head"
-  }, React.createElement("a", {
-    className: "back",
-    href: "/work/"
-  }, "\u2190 All projects"), React.createElement("h1", null, p.title, React.createElement("sup", null, p.year)), React.createElement("p", {
-    className: "proj-intro pre"
-  }, p.intro), React.createElement("div", {
-    className: "meta"
-  }, React.createElement("div", null, React.createElement("span", null, "Field"), p.field), React.createElement("div", null, React.createElement("span", null, "Deliverable"), p.deliverable))), Guide && React.createElement(Guide, null), p.body.length > 0 && React.createElement("div", {
+  return React.createElement(React.Fragment, null, React.createElement(SiteHeader, null), React.createElement("main", null, React.createElement(ProjectHead, {
+    p: p
+  }), Guide && React.createElement(Guide, null), p.body.length > 0 && React.createElement("div", {
     className: "body-imgs"
   }, p.body.map(([src, w, h], i) => React.createElement("img", {
     key: src,

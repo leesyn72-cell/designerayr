@@ -1,6 +1,649 @@
 (function () {
 const addPropertyControls = () => {}; const ControlType = new Proxy({}, { get: (_, k) => k });
 const IMG = "/assets/img/";
+const INSTAGRAM = "https://www.instagram.com/laserin_swim/";
+const C = {
+  ink: "#111014",
+  lilac: "#C9C3F4",
+  violet: "#5B4FD8",
+  line: "rgba(255,255,255,0.14)",
+  muted: "rgba(255,255,255,0.55)"
+};
+const SANS = '"Inter Display", "Inter", "Pretendard", system-ui, sans-serif';
+const SETS = [{
+  n: "01",
+  product: "Lumina 루미나",
+  title: "Keep It Simple, Let It Shine!",
+  tint: "#EAF2FB",
+  notes: ["루미나 다섯 가지 컬러를 한 장에 모은 컬러 소개", "모델 컷 위에 손글씨 타이틀을 겹친 화보형 콘텐츠", "Find your color, own your mood"],
+  files: ["ls-01", "ls-02", "ls-03"]
+}, {
+  n: "02",
+  product: "Yunseul 윤슬",
+  title: "Which Shimmer is Yours?",
+  tint: "#E8F3FB",
+  notes: ["선셋과 에메랄드, 두 가지 윤슬 컬러를 비교하는 질문형 커버", "컬러마다 디테일 컷을 콜라주로 배치"],
+  files: ["ls-04", "ls-05", "ls-06"]
+}, {
+  n: "03",
+  product: "Tweedy 트위디",
+  title: "Stay Romantic — A new mood on the water",
+  tint: "#F7EEF5",
+  notes: ["우표 프레임 안에 네 가지 컬러를 담은 커버", "체크와 웨이브, 패턴별로 나눈 착용 컷"],
+  files: ["ls-07", "ls-08", "ls-09"]
+}, {
+  n: "04",
+  product: "Raina 레이나",
+  title: "Sunset Coral · Blush Pink · Ice Blue",
+  tint: "#FBEEE6",
+  notes: ["컬러마다 배경 톤을 맞춘 단색 화보", "뒷모습 디테일 컷을 작은 프레임으로 더함"],
+  files: ["ls-10", "ls-11", "ls-12"]
+}, {
+  n: "05",
+  product: "Glit 글리트",
+  title: "Berry Matcha · Ice Mocha · Charcol Velvet",
+  tint: "#F1EEF3",
+  notes: ["컬러 이름에 맞춘 오브젝트와 손그림 아이콘", "제품 컷을 스티커처럼 붙여 착용 컷과 함께 보여줌"],
+  files: ["ls-13", "ls-14", "ls-15"]
+}];
+const TONES = [{
+  bg: "#F5F0DC",
+  accent: "#A68A2A",
+  ink: "#3A3424",
+  line: "rgba(58,52,36,0.18)"
+}, {
+  bg: "#E2EEF6",
+  accent: "#3D86B8",
+  ink: "#22384A",
+  line: "rgba(34,56,74,0.16)"
+}, {
+  bg: "#F0E6F2",
+  accent: "#9C4A8B",
+  ink: "#3B2438",
+  line: "rgba(59,36,56,0.16)"
+}, {
+  bg: "#FAE7DC",
+  accent: "#D0623F",
+  ink: "#4A2A20",
+  line: "rgba(74,42,32,0.16)"
+}, {
+  bg: "#E6EDE1",
+  accent: "#5D7D4D",
+  ink: "#2A3524",
+  line: "rgba(42,53,36,0.16)"
+}];
+const ALL = SETS.flatMap(s => s.files);
+function useInView(threshold = 0.2) {
+  const ref = React.useRef(null);
+  const [seen, setSeen] = React.useState(false);
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setSeen(true);
+      return;
+    }
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) {
+        setSeen(true);
+        io.disconnect();
+      }
+    }, {
+      threshold
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [threshold]);
+  return [ref, seen];
+}
+function Reveal({
+  children,
+  delay = 0,
+  style
+}) {
+  const [ref, seen] = useInView(0.15);
+  return React.createElement("div", {
+    ref: ref,
+    style: {
+      ...style,
+      opacity: seen ? 1 : 0,
+      transform: `translateY(${seen ? 0 : 30}px)`,
+      transition: `opacity 1s ease ${delay}s, transform 1.2s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`
+    }
+  }, children);
+}
+function Card({
+  file,
+  alt,
+  shadow = true,
+  radius = 6
+}) {
+  return React.createElement("img", {
+    src: `${IMG}${file}.jpg`,
+    alt: alt,
+    loading: "lazy",
+    draggable: false,
+    style: {
+      width: "100%",
+      aspectRatio: "4 / 5",
+      objectFit: "cover",
+      display: "block",
+      borderRadius: radius,
+      boxShadow: shadow ? "0 24px 60px rgba(17,16,20,0.18)" : "none"
+    }
+  });
+}
+function Phone({
+  file,
+  width
+}) {
+  return React.createElement("div", {
+    style: {
+      width,
+      background: "#fff",
+      borderRadius: 34,
+      padding: "14px 10px 18px",
+      boxShadow: "0 30px 70px rgba(17,16,20,0.22)",
+      border: "1px solid rgba(17,16,20,0.08)"
+    }
+  }, React.createElement("div", {
+    style: {
+      width: "34%",
+      height: 6,
+      margin: "0 auto 12px",
+      borderRadius: 6,
+      background: "#E6E3EE"
+    }
+  }), React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      padding: "0 4px 10px",
+      fontFamily: SANS,
+      fontSize: 11,
+      color: C.ink
+    }
+  }, React.createElement("div", {
+    style: {
+      width: 22,
+      height: 22,
+      borderRadius: "50%",
+      background: C.lilac
+    }
+  }), React.createElement("span", {
+    style: {
+      fontWeight: 600,
+      letterSpacing: "0.02em"
+    }
+  }, "laserin_swim")), React.createElement("img", {
+    src: `${IMG}${file}.jpg`,
+    alt: "",
+    loading: "lazy",
+    draggable: false,
+    style: {
+      width: "100%",
+      aspectRatio: "4 / 5",
+      objectFit: "cover",
+      display: "block"
+    }
+  }), React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 10,
+      padding: "10px 4px 0"
+    }
+  }, [0, 1, 2].map(i => React.createElement("div", {
+    key: i,
+    style: {
+      width: 16,
+      height: 16,
+      borderRadius: i === 2 ? 3 : "50%",
+      border: `1.5px solid ${C.ink}`
+    }
+  }))), React.createElement("div", {
+    style: {
+      padding: "8px 4px 0",
+      display: "flex",
+      flexDirection: "column",
+      gap: 5
+    }
+  }, React.createElement("div", {
+    style: {
+      width: "62%",
+      height: 6,
+      borderRadius: 6,
+      background: "#E6E3EE"
+    }
+  }), React.createElement("div", {
+    style: {
+      width: "40%",
+      height: 6,
+      borderRadius: 6,
+      background: "#EEECF4"
+    }
+  })));
+}
+const PINK = "#D47097";
+const WALL_CSS = `
+@keyframes ls-up { from { transform: translateY(0) } to { transform: translateY(-50%) } }
+@keyframes ls-down { from { transform: translateY(-50%) } to { transform: translateY(0) } }
+@keyframes ls-cover-out { 0%, 78% { transform: translateY(0); filter: blur(0) } 100% { transform: translateY(-104%); filter: blur(6px) } }
+@keyframes ls-cover-in { from { opacity: 0; transform: translateY(22px) } to { opacity: 1; transform: translateY(0) } }
+@keyframes ls-bob { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-6px) } }
+@media (prefers-reduced-motion: reduce) { .ls-intro * { animation: none !important } .ls-cover { display: none } }
+`;
+function Wordmark({
+  width,
+  color
+}) {
+  return React.createElement("div", {
+    role: "img",
+    "aria-label": "LASERIN",
+    style: {
+      width,
+      aspectRatio: "1020 / 264",
+      background: color,
+      WebkitMaskImage: `url(${IMG}laserin-word.png)`,
+      maskImage: `url(${IMG}laserin-word.png)`,
+      WebkitMaskSize: "100% 100%",
+      maskSize: "100% 100%",
+      WebkitMaskRepeat: "no-repeat",
+      maskRepeat: "no-repeat"
+    }
+  });
+}
+function Wall({
+  files,
+  w,
+  m
+}) {
+  const cols = m ? 3 : 5;
+  const h = m ? Math.round(w * 1.2) : Math.min(820, Math.round(w * 0.56));
+  const columns = Array.from({
+    length: cols
+  }, (_, c) => {
+    const list = files.map((_, i) => files[(i * 2 + c * 4) % files.length]);
+    return [...list, ...list];
+  });
+  const cover = 3.2;
+  return React.createElement("div", {
+    className: "ls-intro",
+    style: {
+      position: "relative",
+      height: h,
+      overflow: "hidden",
+      background: "#F7EEF3"
+    }
+  }, React.createElement("style", null, WALL_CSS), React.createElement("div", {
+    style: {
+      position: "absolute",
+      left: "-12%",
+      right: "-12%",
+      top: "-30%",
+      bottom: "-30%",
+      display: "grid",
+      gridTemplateColumns: `repeat(${cols}, 1fr)`,
+      gap: m ? 8 : 16,
+      transform: "rotate(-8deg)"
+    }
+  }, columns.map((list, c) => React.createElement("div", {
+    key: c,
+    style: {
+      overflow: "hidden"
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: m ? 8 : 16,
+      animation: `${c % 2 ? "ls-down" : "ls-up"} ${46 + c * 6}s linear infinite`
+    }
+  }, list.map((f, i) => React.createElement("img", {
+    key: i,
+    src: `${IMG}${f}.jpg`,
+    alt: "",
+    draggable: false,
+    style: {
+      width: "100%",
+      aspectRatio: "4 / 5",
+      objectFit: "cover",
+      display: "block",
+      borderRadius: m ? 6 : 10
+    }
+  })))))), React.createElement("div", {
+    style: {
+      position: "absolute",
+      inset: 0,
+      background: "radial-gradient(ellipse at center, rgba(247,238,243,0.86) 0, rgba(247,238,243,0.55) 26%, rgba(247,238,243,0) 58%)"
+    }
+  }), React.createElement("div", {
+    style: {
+      position: "absolute",
+      inset: 0,
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: m ? 10 : 16,
+      animation: "ls-bob 5s ease-in-out infinite"
+    }
+  }, React.createElement(Wordmark, {
+    width: m ? "62%" : "34%",
+    color: PINK
+  }), React.createElement("div", {
+    style: {
+      fontFamily: SANS,
+      fontSize: m ? 11 : 13,
+      letterSpacing: "0.22em",
+      textTransform: "uppercase",
+      color: PINK
+    }
+  }, "Instagram Contents")), React.createElement("div", {
+    className: "ls-cover",
+    style: {
+      position: "absolute",
+      inset: 0,
+      zIndex: 5,
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: m ? 16 : Math.round(w * 0.016),
+      background: "linear-gradient(180deg, #F3D7DE 0%, #E9E1EC 30%, #A9CFE3 52%, #E6DDE8 74%, #EBB9C8 100%)",
+      animation: `ls-cover-out ${cover}s cubic-bezier(0.7, 0, 0.3, 1) both`
+    }
+  }, React.createElement("div", {
+    style: {
+      position: "absolute",
+      inset: 0,
+      backgroundImage: "linear-gradient(rgba(255,255,255,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.35) 1px, transparent 1px)",
+      backgroundSize: m ? "26px 34px" : "42px 52px"
+    }
+  }), React.createElement("div", {
+    style: {
+      position: "relative",
+      animation: "ls-cover-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both"
+    }
+  }, React.createElement(Wordmark, {
+    width: m ? Math.round(w * 0.62) : Math.round(w * 0.36),
+    color: PINK
+  })), React.createElement("div", {
+    style: {
+      position: "relative",
+      textAlign: "center",
+      fontFamily: SANS,
+      color: "#fff",
+      textShadow: "0 1px 12px rgba(120,60,90,0.25)",
+      animation: "ls-cover-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both"
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: m ? 16 : Math.min(26, Math.round(w * 0.017)),
+      fontWeight: 700
+    }
+  }, "\uB77C\uC138\uB9B0 \uC778\uC2A4\uD0C0\uADF8\uB7A8 \uCF58\uD150\uCE20 \uC81C\uC791"), React.createElement("div", {
+    style: {
+      marginTop: 8,
+      fontSize: m ? 11 : 13,
+      letterSpacing: "0.12em",
+      textTransform: "uppercase",
+      opacity: 0.9
+    }
+  }, "LASERIN Swimwear \xB7 Feed Contents"))));
+}
+function LaserinContents() {
+  const rootRef = React.useRef(null);
+  const [w, setW] = React.useState(1440);
+  React.useEffect(() => {
+    const el = rootRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    setW(el.getBoundingClientRect().width || 1440);
+    const ro = new ResizeObserver(([e]) => {
+      if (e.contentRect.width > 0) setW(e.contentRect.width);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const m = w < 760;
+  const pad = m ? 20 : Math.round(w * 0.04);
+  const small = {
+    fontFamily: SANS,
+    fontSize: m ? 11 : 12,
+    lineHeight: 1.65,
+    letterSpacing: "0.01em"
+  };
+  return React.createElement("div", {
+    ref: rootRef,
+    style: {
+      width: "100%",
+      fontFamily: SANS
+    }
+  }, React.createElement(Wall, {
+    files: ALL,
+    w: w,
+    m: m
+  }), SETS.map((s, si) => {
+    const [en, ...kr] = s.product.split(" ");
+    const tone = TONES[si % TONES.length];
+    const flip = si % 2 === 1;
+    const lift = ["-7%", "6%", "-2%"];
+    const nameBlock = React.createElement(Reveal, {
+      style: {
+        color: tone.ink,
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        minHeight: m ? 0 : "100%"
+      }
+    }, React.createElement("div", null, React.createElement("div", {
+      style: {
+        fontFamily: '"Instrument Serif", "Times New Roman", serif',
+        fontStyle: "italic",
+        fontSize: m ? 72 : Math.min(176, Math.round(w * 0.11)),
+        lineHeight: 0.86,
+        letterSpacing: "-0.03em",
+        color: tone.accent
+      }
+    }, en), React.createElement("div", {
+      style: {
+        ...small,
+        marginTop: m ? 10 : 18,
+        fontSize: m ? 12 : 13,
+        letterSpacing: "0.18em"
+      }
+    }, kr.join(" ")), React.createElement("div", {
+      style: {
+        fontFamily: '"Instrument Serif", "Times New Roman", serif',
+        fontSize: m ? 20 : Math.min(30, Math.round(w * 0.02)),
+        lineHeight: 1.25,
+        marginTop: m ? 22 : 40,
+        maxWidth: 360
+      }
+    }, s.title)), React.createElement("ol", {
+      style: {
+        listStyle: "none",
+        padding: 0,
+        margin: m ? "22px 0 0" : "48px 0 0",
+        borderTop: `1px solid ${tone.line}`
+      }
+    }, s.notes.map((t, i) => React.createElement("li", {
+      key: t,
+      style: {
+        ...small,
+        display: "grid",
+        gridTemplateColumns: "28px 1fr",
+        padding: "10px 0",
+        borderBottom: `1px solid ${tone.line}`,
+        wordBreak: "keep-all",
+        color: tone.ink
+      }
+    }, React.createElement("span", {
+      style: {
+        opacity: 0.45
+      }
+    }, String(i + 1).padStart(2, "0")), t))));
+    const posts = React.createElement("div", {
+      style: {
+        display: "grid",
+        gridTemplateColumns: m ? "1fr 1fr" : "1fr 1.25fr 1fr",
+        gap: m ? 10 : Math.round(w * 0.016),
+        alignItems: "center",
+        padding: m ? 0 : "5% 0"
+      }
+    }, s.files.map((f, i) => React.createElement(Reveal, {
+      key: f,
+      delay: i * 0.12,
+      style: {
+        gridColumn: m && i === 1 ? "1 / -1" : undefined,
+        gridRow: m && i === 1 ? 1 : undefined
+      }
+    }, React.createElement("figure", {
+      style: {
+        margin: 0,
+        transform: m ? "none" : `translateY(${lift[i]})`
+      }
+    }, React.createElement(Card, {
+      file: f,
+      alt: `${s.product} ${i + 1}`,
+      radius: 2
+    }), React.createElement("figcaption", {
+      style: {
+        ...small,
+        display: "flex",
+        justifyContent: "space-between",
+        marginTop: 10,
+        color: tone.ink,
+        opacity: 0.6
+      }
+    }, React.createElement("span", null, en), React.createElement("span", null, String(i + 1).padStart(2, "0")))))));
+    return React.createElement("section", {
+      key: s.n,
+      style: {
+        position: "relative",
+        background: tone.bg,
+        padding: m ? "40px 20px 56px" : `${Math.round(w * 0.04)}px ${pad}px ${Math.round(w * 0.06)}px`,
+        overflow: "hidden"
+      }
+    }, React.createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingBottom: 14,
+        marginBottom: m ? 28 : Math.round(w * 0.035),
+        borderBottom: `1px solid ${tone.line}`
+      }
+    }, React.createElement(Wordmark, {
+      width: m ? 76 : 96,
+      color: tone.ink
+    }), React.createElement("span", {
+      style: {
+        ...small,
+        color: tone.ink,
+        letterSpacing: "0.12em"
+      }
+    }, s.n, " / ", String(SETS.length).padStart(2, "0"))), React.createElement("div", {
+      style: {
+        display: "grid",
+        gridTemplateColumns: m ? "1fr" : flip ? "2.1fr 1fr" : "1fr 2.1fr",
+        gap: m ? 32 : Math.round(w * 0.05),
+        alignItems: "stretch"
+      }
+    }, m || !flip ? React.createElement(React.Fragment, null, nameBlock, posts) : React.createElement(React.Fragment, null, posts, nameBlock)));
+  }), React.createElement("section", {
+    style: {
+      background: C.ink,
+      color: "#fff",
+      padding: m ? "56px 20px" : `${Math.round(w * 0.06)}px ${pad}px`,
+      display: "grid",
+      gridTemplateColumns: m ? "1fr" : "1fr 1fr",
+      gap: m ? 36 : pad * 1.5,
+      alignItems: "center"
+    }
+  }, React.createElement(Reveal, null, React.createElement("div", {
+    style: {
+      fontWeight: 800,
+      fontSize: m ? 36 : Math.min(72, Math.round(w * 0.05)),
+      lineHeight: 0.95,
+      letterSpacing: "-0.035em",
+      color: C.lilac
+    }
+  }, "Live on", React.createElement("br", null), "Instagram"), React.createElement("p", {
+    style: {
+      ...small,
+      fontSize: m ? 12 : 13,
+      color: C.muted,
+      margin: "20px 0 0",
+      maxWidth: 360,
+      wordBreak: "keep-all"
+    }
+  }, "\uB77C\uC138\uB9B0 \uACF5\uC2DD \uC778\uC2A4\uD0C0\uADF8\uB7A8 \uD53C\uB4DC\uC5D0 \uC2E4\uC81C\uB85C \uC5C5\uB85C\uB4DC\uB41C \uD654\uBA74\uC785\uB2C8\uB2E4."), React.createElement("a", {
+    href: INSTAGRAM,
+    target: "_blank",
+    rel: "noopener",
+    style: {
+      display: "inline-flex",
+      gap: 6,
+      marginTop: 24,
+      ...small,
+      fontSize: m ? 13 : 14,
+      color: "#fff",
+      borderBottom: `1px solid ${C.lilac}`,
+      paddingBottom: 2
+    }
+  }, "@laserin_swim \u2197")), React.createElement(Reveal, {
+    delay: 0.15,
+    style: {
+      display: "flex",
+      justifyContent: "center"
+    }
+  }, React.createElement("div", {
+    style: {
+      width: m ? "78%" : Math.min(360, Math.round(w * 0.25)),
+      background: "#000",
+      borderRadius: 40,
+      padding: 10,
+      boxShadow: "0 40px 90px rgba(0,0,0,0.45)",
+      border: "1px solid rgba(255,255,255,0.12)"
+    }
+  }, React.createElement("img", {
+    src: `${IMG}ls-feed.jpg`,
+    alt: "The LASERIN Instagram profile feed",
+    loading: "lazy",
+    draggable: false,
+    style: {
+      width: "100%",
+      display: "block",
+      borderRadius: 30
+    }
+  })))), React.createElement("section", {
+    style: {
+      background: C.ink,
+      color: "#fff",
+      padding: m ? "0 20px 56px" : `0 ${pad}px ${Math.round(w * 0.06)}px`
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(3, 1fr)",
+      gap: m ? 3 : 6,
+      maxWidth: 1000,
+      margin: "0 auto"
+    }
+  }, [...ALL].reverse().map((f, i) => React.createElement(Reveal, {
+    key: f,
+    delay: i % 3 * 0.08
+  }, React.createElement(Card, {
+    file: f,
+    alt: "",
+    shadow: false,
+    radius: 0
+  }))))));
+}(window.Guides = window.Guides || {}).LaserinContents = LaserinContents;
+})();
+(function () {
+const addPropertyControls = () => {}; const ControlType = new Proxy({}, { get: (_, k) => k });
+const IMG = "/assets/img/";
 const PAGES = [{
   file: "mo-layout-1",
   ratio: "1920 / 6339.04",
@@ -2244,4 +2887,478 @@ addPropertyControls(PrunauGuideline, {
     defaultValue: ""
   }
 });(window.Guides = window.Guides || {}).PrunauGuideline = PrunauGuideline;
+})();
+(function () {
+const addPropertyControls = () => {}; const ControlType = new Proxy({}, { get: (_, k) => k });
+const IMG = "/assets/img/";
+const C = {
+  ink: "#121212",
+  gold: "#C9A227",
+  board: "#F2F1F5",
+  paper: "#F6F5F2",
+  muted: "#777"
+};
+const SANS = '"Pretendard", "Inter", "Apple SD Gothic Neo", system-ui, sans-serif';
+const CSS = `
+@keyframes rp-run { 0% { transform: translateX(-70%); opacity: 0; filter: blur(14px) } 4% { opacity: 1 } 13% { transform: translateX(3%); filter: blur(0) } 17%, 86% { transform: translateX(0); opacity: 1; filter: blur(0) } 94%, 100% { transform: translateX(45%); opacity: 0; filter: blur(12px) } }
+@keyframes rp-ghost { 0% { transform: translateX(-70%); opacity: 0 } 5% { opacity: var(--o) } 15% { transform: translateX(0); opacity: 0 } 100% { opacity: 0 } }
+@keyframes rp-sweep { 0% { transform: translateX(-110%); opacity: 0 } 3% { opacity: 1 } 14% { transform: translateX(110%); opacity: 0 } 100% { transform: translateX(110%); opacity: 0 } }
+@keyframes rp-pop { 0%, 30% { transform: scale(0) rotate(-30deg) } 36% { transform: scale(1.12) rotate(4deg) } 40%, 88% { transform: scale(1) rotate(0) } 95%, 100% { transform: scale(0) } }
+@keyframes rp-fade { 0%, 34% { opacity: 0 } 42%, 88% { opacity: 1 } 95%, 100% { opacity: 0 } }
+@keyframes rp-lines { from { background-position: 0 0 } to { background-position: 46px 0 } }
+` + [14, 18, 22, 27].map(a => `@keyframes rp-wipe-${a} { 0%, ${a}% { clip-path: inset(0 100% 0 0); transform: translateX(-24px) } ${a + 5}%, 88% { clip-path: inset(0 0 0 0); transform: translateX(0) } 95%, 100% { clip-path: inset(0 0 0 100%); transform: translateX(24px) } }`).join("\n") + `
+@keyframes rp-cover-out { 0%, 82% { clip-path: inset(0 0 0 0) } 100% { clip-path: inset(0 0 0 100%) } }
+@keyframes rp-cover-in { 0% { opacity: 0; transform: translateY(24px) } 100% { opacity: 1; transform: translateY(0) } }
+@keyframes rp-cover-streak { 0%, 78% { transform: translateX(-120%) } 100% { transform: translateX(120%) } }
+@media (prefers-reduced-motion: reduce) { .rp-intro * { animation: none !important; clip-path: none !important; opacity: 1 !important } .rp-cover { display: none } }
+`;
+const COVER = 3.4;
+function useInView(threshold = 0.2) {
+  const ref = React.useRef(null);
+  const [seen, setSeen] = React.useState(false);
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setSeen(true);
+      return;
+    }
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) {
+        setSeen(true);
+        io.disconnect();
+      }
+    }, {
+      threshold
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [threshold]);
+  return [ref, seen];
+}
+function Reveal({
+  children,
+  delay = 0,
+  style
+}) {
+  const [ref, seen] = useInView(0.12);
+  return React.createElement("div", {
+    ref: ref,
+    style: {
+      ...style,
+      opacity: seen ? 1 : 0,
+      transform: `translateY(${seen ? 0 : 30}px)`,
+      transition: `opacity 1s ease ${delay}s, transform 1.2s cubic-bezier(0.16, 1, 0.3, 1) ${delay}s`
+    }
+  }, children);
+}
+function Note({
+  title,
+  text,
+  side,
+  m
+}) {
+  return React.createElement("div", {
+    style: {
+      position: "relative",
+      fontFamily: SANS,
+      color: C.ink,
+      maxWidth: 300
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: m ? 13 : 14,
+      fontWeight: 700,
+      marginBottom: 8
+    }
+  }, title), React.createElement("div", {
+    style: {
+      fontSize: m ? 12 : 13,
+      lineHeight: 1.75,
+      color: "#555",
+      wordBreak: "keep-all"
+    }
+  }, text), !m && React.createElement("div", {
+    style: {
+      position: "absolute",
+      top: 9,
+      [side === "left" ? "left" : "right"]: "calc(100% + 16px)",
+      width: 90,
+      borderTop: "1.5px dotted #B9B7C2"
+    }
+  }, React.createElement("span", {
+    style: {
+      position: "absolute",
+      top: -4,
+      [side === "left" ? "right" : "left"]: -3,
+      width: 6,
+      height: 6,
+      borderRadius: "50%",
+      background: "#9E9CA8"
+    }
+  })));
+}
+function Page({
+  file,
+  alt,
+  ratio
+}) {
+  return React.createElement("img", {
+    src: `${IMG}${file}`,
+    alt: alt,
+    loading: "lazy",
+    draggable: false,
+    style: {
+      width: "100%",
+      aspectRatio: ratio,
+      display: "block",
+      borderRadius: 10,
+      boxShadow: "0 30px 70px rgba(18,18,18,0.14)"
+    }
+  });
+}
+function Intro({
+  m,
+  w
+}) {
+  const dur = "6.4s";
+  const play = (name, extra = 0) => `${name} ${dur} cubic-bezier(0.22, 1, 0.36, 1) ${COVER + extra}s infinite both`;
+  const piece = (file, width, a, style) => React.createElement("img", {
+    src: `${IMG}${file}`,
+    alt: "",
+    draggable: false,
+    style: {
+      display: "block",
+      width,
+      mixBlendMode: "multiply",
+      clipPath: "inset(0 100% 0 0)",
+      animation: play(`rp-wipe-${a}`),
+      ...style
+    }
+  });
+  const runnerW = m ? "64%" : "34%";
+  return React.createElement("div", {
+    className: "rp-intro",
+    style: {
+      position: "relative",
+      width: "100%",
+      aspectRatio: m ? "4 / 5" : "16 / 9",
+      background: C.paper,
+      overflow: "hidden"
+    }
+  }, React.createElement("div", {
+    style: {
+      position: "absolute",
+      inset: 0,
+      backgroundImage: "repeating-linear-gradient(90deg, transparent 0 22px, rgba(201,162,39,0.20) 22px 23px)",
+      WebkitMaskImage: "linear-gradient(90deg, #000 0, transparent 26%, transparent 74%, #000 100%)",
+      maskImage: "linear-gradient(90deg, #000 0, transparent 26%, transparent 74%, #000 100%)",
+      animation: "rp-lines 1.6s linear infinite"
+    }
+  }), React.createElement("div", {
+    style: {
+      position: "absolute",
+      left: 0,
+      right: 0,
+      top: m ? "40%" : "22%",
+      height: m ? "40%" : "60%",
+      opacity: 0,
+      backgroundImage: "repeating-linear-gradient(180deg, transparent 0 9px, rgba(18,18,18,0.16) 9px 10px, transparent 10px 23px, rgba(201,162,39,0.4) 23px 24px)",
+      animation: play("rp-sweep")
+    }
+  }), React.createElement("div", {
+    style: {
+      position: "absolute",
+      left: m ? "18%" : "50%",
+      bottom: m ? "-6%" : "-8%",
+      width: runnerW
+    }
+  }, [0.28, 0.14].map((o, i) => React.createElement("img", {
+    key: o,
+    src: `${IMG}rp-runner.png`,
+    alt: "",
+    draggable: false,
+    style: {
+      position: "absolute",
+      inset: 0,
+      width: "100%",
+      opacity: 0,
+      ["--o"]: o,
+      animation: play("rp-ghost", (i + 1) * 0.07),
+      filter: "blur(2px)"
+    }
+  })), React.createElement("img", {
+    src: `${IMG}rp-runner.png`,
+    alt: "Kim Kuk-young running with Runpl",
+    draggable: false,
+    style: {
+      position: "relative",
+      width: "100%",
+      display: "block",
+      opacity: 0,
+      animation: play("rp-run")
+    }
+  })), React.createElement("div", {
+    style: {
+      position: "absolute",
+      left: m ? "6%" : "9%",
+      top: m ? "7%" : "16%",
+      width: m ? "88%" : "40%",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      gap: m ? 6 : Math.round(w * 0.006)
+    }
+  }, piece("rp-t1.jpg", "56%", 14), piece("rp-t2.jpg", "64%", 18), piece("rp-t3.jpg", "86%", 22), piece("rp-t4.jpg", "88%", 27, {
+    marginTop: m ? 4 : Math.round(w * 0.008)
+  })), React.createElement("img", {
+    src: `${IMG}rp-badge.png`,
+    alt: "",
+    draggable: false,
+    style: {
+      position: "absolute",
+      left: m ? "5%" : "4%",
+      bottom: m ? "4%" : "7%",
+      width: m ? "22%" : "9%",
+      transform: "scale(0)",
+      animation: play("rp-pop")
+    }
+  }), React.createElement("img", {
+    src: `${IMG}rp-logo.png`,
+    alt: "Runpl",
+    draggable: false,
+    style: {
+      position: "absolute",
+      right: m ? "5%" : "4%",
+      bottom: m ? "5%" : "7%",
+      width: m ? "20%" : "9%",
+      opacity: 0,
+      filter: "grayscale(1) brightness(0.8)",
+      animation: play("rp-fade")
+    }
+  }), React.createElement("div", {
+    className: "rp-cover",
+    style: {
+      position: "absolute",
+      inset: 0,
+      zIndex: 5,
+      background: "#F06721",
+      color: "#fff",
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: m ? 18 : Math.round(w * 0.018),
+      animation: `rp-cover-out ${COVER}s cubic-bezier(0.7, 0, 0.3, 1) both`,
+      fontFamily: SANS
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: m ? 14 : Math.round(w * 0.022),
+      animation: "rp-cover-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both"
+    }
+  }, React.createElement("img", {
+    src: `${IMG}atflee-white.svg`,
+    alt: "atflee",
+    draggable: false,
+    style: {
+      height: m ? 40 : Math.round(w * 0.05),
+      display: "block"
+    }
+  }), React.createElement("span", {
+    style: {
+      fontSize: m ? 26 : Math.round(w * 0.03),
+      fontWeight: 300,
+      opacity: 0.85
+    }
+  }, "\xD7"), React.createElement("span", {
+    style: {
+      fontSize: m ? 30 : Math.round(w * 0.042),
+      fontWeight: 800,
+      letterSpacing: "-0.03em"
+    }
+  }, "\uAE40\uAD6D\uC601")), React.createElement("div", {
+    style: {
+      textAlign: "center",
+      animation: "rp-cover-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both"
+    }
+  }, React.createElement("div", {
+    style: {
+      fontSize: m ? 16 : Math.min(26, Math.round(w * 0.017)),
+      fontWeight: 600,
+      letterSpacing: "-0.01em"
+    }
+  }, "\uC573\uD50C\uB9AC \uB7F0\uD50C \uC0C1\uC138\uD398\uC774\uC9C0 \uC81C\uC791"), React.createElement("div", {
+    style: {
+      marginTop: 8,
+      fontSize: m ? 11 : 13,
+      letterSpacing: "0.08em",
+      textTransform: "uppercase",
+      opacity: 0.8
+    }
+  }, "atflee \xD7 Kim Kuk-young Collaboration")), React.createElement("div", {
+    style: {
+      position: "absolute",
+      inset: 0,
+      background: "linear-gradient(90deg, transparent 0, rgba(255,255,255,0.0) 35%, rgba(255,255,255,0.55) 50%, rgba(255,255,255,0) 65%, transparent 100%)",
+      animation: `rp-cover-streak ${COVER}s cubic-bezier(0.7, 0, 0.3, 1) both`
+    }
+  })));
+}
+function RunplDetail() {
+  const rootRef = React.useRef(null);
+  const [w, setW] = React.useState(1440);
+  React.useEffect(() => {
+    const el = rootRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    setW(el.getBoundingClientRect().width || 1440);
+    const ro = new ResizeObserver(([e]) => {
+      if (e.contentRect.width > 0) setW(e.contentRect.width);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const m = w < 760;
+  const pad = m ? 20 : Math.round(w * 0.04);
+  const head = {
+    display: "flex",
+    gap: m ? 18 : 48,
+    fontFamily: SANS,
+    fontSize: m ? 12 : 14,
+    color: C.ink
+  };
+  return React.createElement("div", {
+    ref: rootRef,
+    style: {
+      width: "100%",
+      fontFamily: SANS
+    }
+  }, React.createElement("style", null, CSS), React.createElement(Intro, {
+    m: m,
+    w: w
+  }), React.createElement("section", {
+    style: {
+      background: C.board,
+      padding: m ? "40px 20px 56px" : `${Math.round(w * 0.035)}px ${pad}px ${Math.round(w * 0.07)}px`
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      ...head
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: m ? 18 : 48
+    }
+  }, React.createElement("span", null, "01"), React.createElement("span", null, "\uB7F0\uD50C \xD7 \uAE40\uAD6D\uC601")), React.createElement("span", null, "\uC0C1\uC138\uD398\uC774\uC9C0")), m ? React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 28,
+      marginTop: 36
+    }
+  }, React.createElement(Note, {
+    side: "left",
+    m: true,
+    title: "\uBA54\uC778 \uBE44\uC8FC\uC5BC",
+    text: "100m \uD55C\uAD6D \uAE30\uB85D \uBCF4\uC720\uC790 \uAE40\uAD6D\uC601 \uCF54\uCE58\uC758 \uB2EC\uB9AC\uB294 \uCEF7 \uC704\uC5D0 \uB7F0\uD50C \uB85C\uACE0\uD0C0\uC785\uC744 \uD06C\uAC8C \uC62C\uB9AC\uACE0, \uC138\uB85C \uB77C\uC778\uC73C\uB85C \uC18D\uB3C4\uAC10\uC744 \uB354\uD588\uC2B5\uB2C8\uB2E4."
+  }), React.createElement(Page, {
+    file: "rp-d1.jpg",
+    alt: "Runpl detail page, part 1",
+    ratio: "900 / 1769"
+  }), React.createElement(Note, {
+    side: "right",
+    m: true,
+    title: "\uC778\uD130\uBDF0",
+    text: "\uC120\uC218 \uC2DC\uC808 \uC0AC\uC9C4\uACFC \uAE40\uAD6D\uC601 \uCF54\uCE58\uC758 \uB9D0\uC744 \uC778\uC6A9\uC73C\uB85C \uB2F4\uC544, \uB7F0\uD50C\uC744 \uC4F0\uB294 \uC774\uC720\uB97C \uC9C1\uC811 \uC804\uD569\uB2C8\uB2E4."
+  }), React.createElement(Page, {
+    file: "rp-d2.jpg",
+    alt: "Runpl detail page, part 2",
+    ratio: "900 / 2928"
+  })) : React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "1fr 1.2fr 1.2fr 1fr",
+      gap: Math.round(w * 0.03),
+      marginTop: Math.round(w * 0.08),
+      alignItems: "start"
+    }
+  }, React.createElement(Reveal, {
+    style: {
+      marginTop: Math.round(w * 0.06),
+      display: "flex",
+      justifyContent: "flex-end",
+      paddingRight: 110
+    }
+  }, React.createElement(Note, {
+    side: "left",
+    m: false,
+    title: "\uBA54\uC778 \uBE44\uC8FC\uC5BC",
+    text: "100m \uD55C\uAD6D \uAE30\uB85D \uBCF4\uC720\uC790 \uAE40\uAD6D\uC601 \uCF54\uCE58\uC758 \uB2EC\uB9AC\uB294 \uCEF7 \uC704\uC5D0 \uB7F0\uD50C \uB85C\uACE0\uD0C0\uC785\uC744 \uD06C\uAC8C \uC62C\uB9AC\uACE0, \uC138\uB85C \uB77C\uC778\uC73C\uB85C \uC18D\uB3C4\uAC10\uC744 \uB354\uD588\uC2B5\uB2C8\uB2E4."
+  })), React.createElement(Reveal, null, React.createElement(Page, {
+    file: "rp-d1.jpg",
+    alt: "Runpl detail page, part 1",
+    ratio: "900 / 1769"
+  })), React.createElement(Reveal, {
+    delay: 0.15,
+    style: {
+      marginTop: Math.round(w * 0.16)
+    }
+  }, React.createElement(Page, {
+    file: "rp-d2.jpg",
+    alt: "Runpl detail page, part 2",
+    ratio: "900 / 2928"
+  })), React.createElement(Reveal, {
+    style: {
+      marginTop: Math.round(w * 0.3),
+      paddingLeft: 110
+    }
+  }, React.createElement(Note, {
+    side: "right",
+    m: false,
+    title: "\uC778\uD130\uBDF0",
+    text: "\uC120\uC218 \uC2DC\uC808 \uC0AC\uC9C4\uACFC \uAE40\uAD6D\uC601 \uCF54\uCE58\uC758 \uB9D0\uC744 \uC778\uC6A9\uC73C\uB85C \uB2F4\uC544, \uB7F0\uD50C\uC744 \uC4F0\uB294 \uC774\uC720\uB97C \uC9C1\uC811 \uC804\uD569\uB2C8\uB2E4."
+  })))), React.createElement("section", {
+    style: {
+      background: "#fff",
+      padding: m ? "40px 20px 56px" : `${Math.round(w * 0.035)}px ${pad}px ${Math.round(w * 0.06)}px`
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      ...head
+    }
+  }, React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: m ? 18 : 48
+    }
+  }, React.createElement("span", null, "02"), React.createElement("span", null, "\uB7F0\uD50C \xD7 \uAE40\uAD6D\uC601")), React.createElement("span", null, "\uC378\uB124\uC77C")), React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: m ? "1fr" : "1fr 1.4fr 1fr",
+      gap: m ? 24 : Math.round(w * 0.03),
+      marginTop: m ? 32 : Math.round(w * 0.05),
+      alignItems: "center"
+    }
+  }, !m && React.createElement("div", null), React.createElement(Reveal, null, React.createElement(Page, {
+    file: "rp-thumb.jpg",
+    alt: "Runpl x Kim Kuk-young thumbnail",
+    ratio: "1 / 1"
+  })), React.createElement(Reveal, {
+    delay: 0.15,
+    style: {
+      paddingLeft: m ? 0 : 110
+    }
+  }, React.createElement(Note, {
+    side: "right",
+    m: m,
+    title: "\uC378\uB124\uC77C",
+    text: "\uC81C\uD488\uC744 \uB4E0 \uC815\uBA74 \uCEF7\uACFC \uB2EC\uB9AC\uB294 \uCEF7\uC744 \uACB9\uCE58\uACE0, '100m \uD55C\uAD6D\uAE30\uB85D \uBCF4\uC720\uC790 \uAE40\uAD6D\uC601 PICK' \uBC30\uC9C0\uB85C \uC2E0\uB8B0\uB97C \uB354\uD588\uC2B5\uB2C8\uB2E4."
+  })))));
+}(window.Guides = window.Guides || {}).RunplDetail = RunplDetail;
 })();
