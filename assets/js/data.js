@@ -34,7 +34,7 @@ window.SITE = {
         },
         {
             slug: "motion-graphics-lecture-poster", title: "Free Special Lecture on Motion Graphics", field: "Poster Design", deliverable: "Graphic Design", year: "2025",
-            cover: "JjiIg3TIvM2TJlXmnVf6qom3WA.jpg", guide: "MotionLecture", behance: "https://www.behance.net/gallery/236741261/Poster-Design-_-Free-special-lecture-on-motion-graphics",
+            cover: "mo-cover.svg", guide: "MotionLecture", behance: "https://www.behance.net/gallery/236741261/Poster-Design-_-Free-special-lecture-on-motion-graphics",
             intro: "가상의 모션그래픽 입문 무료 특강을 위한\n포스터, 세로형 배너,\n3단형 리플렛 디자인.",
             body: [],
         },
