@@ -17,7 +17,7 @@ const CSS = `
 @keyframes rp-lines { from { background-position: 0 0 } to { background-position: 46px 0 } }
 ` + [14, 18, 22, 27].map((a) => `@keyframes rp-wipe-${a} { 0%, ${a}% { clip-path: inset(0 100% 0 0); transform: translateX(-24px) } ${a + 5}%, 88% { clip-path: inset(0 0 0 0); transform: translateX(0) } 95%, 100% { clip-path: inset(0 0 0 100%); transform: translateX(24px) } }`).join("\n") + `
 @keyframes rp-cover-out { 0%, 82% { clip-path: inset(0 0 0 0) } 100% { clip-path: inset(0 0 0 100%) } }
-@keyframes rp-cover-in { 0% { opacity: 0; transform: translateY(24px) } 100% { opacity: 1; transform: translateY(0) } }
+@keyframes rp-cover-in { 0% { transform: translateY(18px) } 100% { transform: translateY(0) } }
 @keyframes rp-cover-streak { 0%, 78% { transform: translateX(-120%) } 100% { transform: translateX(120%) } }
 @media (prefers-reduced-motion: reduce) { .rp-intro * { animation: none !important; clip-path: none !important; opacity: 1 !important } .rp-cover { display: none } }
 `
@@ -73,16 +73,16 @@ function Intro({ m, w }: { m: boolean; w: number }) {
     const piece = (file: string, width: string, a: number, style?: React.CSSProperties) => (
         <img src={`${IMG}${file}`} alt="" draggable={false} style={{ display: "block", width, mixBlendMode: "multiply", clipPath: "inset(0 100% 0 0)", animation: play(`rp-wipe-${a}`), ...style }} />
     )
-    const runnerW = m ? "64%" : "34%"
+    const runnerW = m ? "58%" : "34%"
     return (
-        <div className="rp-intro" style={{ position: "relative", width: "100%", aspectRatio: m ? "4 / 5" : "16 / 9", background: C.paper, overflow: "hidden" }}>
+        <div className="rp-intro" style={{ position: "relative", width: "100%", aspectRatio: m ? "10 / 14" : "16 / 9", background: C.paper, overflow: "hidden" }}>
             {/* standing speed lines on both sides, drifting */}
             <div style={{ position: "absolute", inset: 0, backgroundImage: "repeating-linear-gradient(90deg, transparent 0 22px, rgba(201,162,39,0.20) 22px 23px)", WebkitMaskImage: "linear-gradient(90deg, #000 0, transparent 26%, transparent 74%, #000 100%)", maskImage: "linear-gradient(90deg, #000 0, transparent 26%, transparent 74%, #000 100%)", animation: "rp-lines 1.6s linear infinite" }} />
             {/* a burst of streaks that sweeps across ahead of the runner */}
             <div style={{ position: "absolute", left: 0, right: 0, top: m ? "40%" : "22%", height: m ? "40%" : "60%", opacity: 0, backgroundImage: "repeating-linear-gradient(180deg, transparent 0 9px, rgba(18,18,18,0.16) 9px 10px, transparent 10px 23px, rgba(201,162,39,0.4) 23px 24px)", animation: play("rp-sweep") }} />
 
             {/* runner and two after-images */}
-            <div style={{ position: "absolute", left: m ? "18%" : "50%", bottom: m ? "-6%" : "-8%", width: runnerW }}>
+            <div style={{ position: "absolute", left: m ? "24%" : "50%", bottom: m ? "-3%" : "-8%", width: runnerW }}>
                 {[0.28, 0.14].map((o, i) => (
                     <img key={o} src={`${IMG}rp-runner.png`} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", opacity: 0, ["--o" as any]: o, animation: play("rp-ghost", (i + 1) * 0.07), filter: "blur(2px)" }} />
                 ))}
@@ -90,7 +90,7 @@ function Intro({ m, w }: { m: boolean; w: number }) {
             </div>
 
             {/* headline and logotype */}
-            <div style={{ position: "absolute", left: m ? "6%" : "9%", top: m ? "7%" : "16%", width: m ? "88%" : "40%", display: "flex", flexDirection: "column", alignItems: "center", gap: m ? 6 : Math.round(w * 0.006) }}>
+            <div style={{ position: "absolute", left: m ? "8%" : "9%", top: m ? "5%" : "16%", width: m ? "84%" : "40%", display: "flex", flexDirection: "column", alignItems: "center", gap: m ? 6 : Math.round(w * 0.006) }}>
                 {piece("rp-t1.jpg", "56%", 14)}
                 {piece("rp-t2.jpg", "64%", 18)}
                 {piece("rp-t3.jpg", "86%", 22)}
@@ -98,8 +98,8 @@ function Intro({ m, w }: { m: boolean; w: number }) {
             </div>
 
             {/* patent badge and logo */}
-            <img src={`${IMG}rp-badge.png`} alt="" draggable={false} style={{ position: "absolute", left: m ? "5%" : "4%", bottom: m ? "4%" : "7%", width: m ? "22%" : "9%", transform: "scale(0)", animation: play("rp-pop") }} />
-            <img src={`${IMG}rp-logo.png`} alt="Runpl" draggable={false} style={{ position: "absolute", right: m ? "5%" : "4%", bottom: m ? "5%" : "7%", width: m ? "20%" : "9%", opacity: 0, filter: "grayscale(1) brightness(0.8)", animation: play("rp-fade") }} />
+            <img src={`${IMG}rp-badge.png`} alt="" draggable={false} style={{ position: "absolute", left: m ? "5%" : "4%", bottom: m ? "4%" : "7%", width: m ? "17%" : "9%", transform: "scale(0)", animation: play("rp-pop") }} />
+            <img src={`${IMG}rp-logo.png`} alt="Runpl" draggable={false} style={{ position: "absolute", right: m ? "5%" : "4%", bottom: m ? "4%" : "7%", width: m ? "17%" : "9%", opacity: 0, filter: "grayscale(1) brightness(0.8)", animation: play("rp-fade") }} />
 
             {/* Opening card: atflee orange with the logo and the collaboration, then a quick sweep into the hero */}
             <div className="rp-cover" style={{ position: "absolute", inset: 0, zIndex: 5, background: "#F06721", color: "#fff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: m ? 18 : Math.round(w * 0.018), animation: `rp-cover-out ${COVER}s cubic-bezier(0.7, 0, 0.3, 1) both`, fontFamily: SANS }}>

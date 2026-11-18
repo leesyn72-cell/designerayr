@@ -52,7 +52,7 @@ window.SITE = {
             body: [],
         },
         {
-            slug: "runpl-kim-kukyoung", title: "atflee Runpl × Kim Kuk-young", field: "Detail Page", deliverable: "Detail Page, Thumbnail", year: "2026",
+            slug: "runpl-kim-kukyoung", title: "atflee Runpl × Kim Kuk‑young", field: "Detail Page", deliverable: "Detail Page, Thumbnail", year: "2026",
             cover: "rp-cover.jpg", guide: "RunplDetail",
             kind: "company", contribution: 96,
             client: { name: "앳플리 atflee", logo: "atflee-orange.svg", ratio: 3.733 },

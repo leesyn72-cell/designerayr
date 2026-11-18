@@ -2908,7 +2908,7 @@ const CSS = `
 @keyframes rp-lines { from { background-position: 0 0 } to { background-position: 46px 0 } }
 ` + [14, 18, 22, 27].map(a => `@keyframes rp-wipe-${a} { 0%, ${a}% { clip-path: inset(0 100% 0 0); transform: translateX(-24px) } ${a + 5}%, 88% { clip-path: inset(0 0 0 0); transform: translateX(0) } 95%, 100% { clip-path: inset(0 0 0 100%); transform: translateX(24px) } }`).join("\n") + `
 @keyframes rp-cover-out { 0%, 82% { clip-path: inset(0 0 0 0) } 100% { clip-path: inset(0 0 0 100%) } }
-@keyframes rp-cover-in { 0% { opacity: 0; transform: translateY(24px) } 100% { opacity: 1; transform: translateY(0) } }
+@keyframes rp-cover-in { 0% { transform: translateY(18px) } 100% { transform: translateY(0) } }
 @keyframes rp-cover-streak { 0%, 78% { transform: translateX(-120%) } 100% { transform: translateX(120%) } }
 @media (prefers-reduced-motion: reduce) { .rp-intro * { animation: none !important; clip-path: none !important; opacity: 1 !important } .rp-cover { display: none } }
 `;
@@ -3035,13 +3035,13 @@ function Intro({
       ...style
     }
   });
-  const runnerW = m ? "64%" : "34%";
+  const runnerW = m ? "58%" : "34%";
   return React.createElement("div", {
     className: "rp-intro",
     style: {
       position: "relative",
       width: "100%",
-      aspectRatio: m ? "4 / 5" : "16 / 9",
+      aspectRatio: m ? "10 / 14" : "16 / 9",
       background: C.paper,
       overflow: "hidden"
     }
@@ -3068,8 +3068,8 @@ function Intro({
   }), React.createElement("div", {
     style: {
       position: "absolute",
-      left: m ? "18%" : "50%",
-      bottom: m ? "-6%" : "-8%",
+      left: m ? "24%" : "50%",
+      bottom: m ? "-3%" : "-8%",
       width: runnerW
     }
   }, [0.28, 0.14].map((o, i) => React.createElement("img", {
@@ -3100,9 +3100,9 @@ function Intro({
   })), React.createElement("div", {
     style: {
       position: "absolute",
-      left: m ? "6%" : "9%",
-      top: m ? "7%" : "16%",
-      width: m ? "88%" : "40%",
+      left: m ? "8%" : "9%",
+      top: m ? "5%" : "16%",
+      width: m ? "84%" : "40%",
       display: "flex",
       flexDirection: "column",
       alignItems: "center",
@@ -3118,7 +3118,7 @@ function Intro({
       position: "absolute",
       left: m ? "5%" : "4%",
       bottom: m ? "4%" : "7%",
-      width: m ? "22%" : "9%",
+      width: m ? "17%" : "9%",
       transform: "scale(0)",
       animation: play("rp-pop")
     }
@@ -3129,8 +3129,8 @@ function Intro({
     style: {
       position: "absolute",
       right: m ? "5%" : "4%",
-      bottom: m ? "5%" : "7%",
-      width: m ? "20%" : "9%",
+      bottom: m ? "4%" : "7%",
+      width: m ? "17%" : "9%",
       opacity: 0,
       filter: "grayscale(1) brightness(0.8)",
       animation: play("rp-fade")
