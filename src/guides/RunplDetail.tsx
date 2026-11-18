@@ -73,7 +73,7 @@ function Intro({ m, w }: { m: boolean; w: number }) {
     const piece = (file: string, width: string, a: number, style?: React.CSSProperties) => (
         <img src={`${IMG}${file}`} alt="" draggable={false} style={{ display: "block", width, mixBlendMode: "multiply", clipPath: "inset(0 100% 0 0)", animation: play(`rp-wipe-${a}`), ...style }} />
     )
-    const runnerW = m ? "58%" : "34%"
+    const runnerW = m ? "64%" : "34%"
     return (
         <div className="rp-intro" style={{ position: "relative", width: "100%", aspectRatio: m ? "10 / 14" : "16 / 9", background: C.paper, overflow: "hidden" }}>
             {/* standing speed lines on both sides, drifting */}
@@ -82,7 +82,8 @@ function Intro({ m, w }: { m: boolean; w: number }) {
             <div style={{ position: "absolute", left: 0, right: 0, top: m ? "40%" : "22%", height: m ? "40%" : "60%", opacity: 0, backgroundImage: "repeating-linear-gradient(180deg, transparent 0 9px, rgba(18,18,18,0.16) 9px 10px, transparent 10px 23px, rgba(201,162,39,0.4) 23px 24px)", animation: play("rp-sweep") }} />
 
             {/* runner and two after-images */}
-            <div style={{ position: "absolute", left: m ? "24%" : "50%", bottom: m ? "-3%" : "-8%", width: runnerW }}>
+            {/* the runner sits in front of the logotype, as on the detail page */}
+            <div style={{ position: "absolute", left: m ? "20%" : "50%", bottom: m ? "3%" : "-8%", width: runnerW, zIndex: 2 }}>
                 {[0.28, 0.14].map((o, i) => (
                     <img key={o} src={`${IMG}rp-runner.png`} alt="" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", opacity: 0, ["--o" as any]: o, animation: play("rp-ghost", (i + 1) * 0.07), filter: "blur(2px)" }} />
                 ))}

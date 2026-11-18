@@ -3035,7 +3035,7 @@ function Intro({
       ...style
     }
   });
-  const runnerW = m ? "58%" : "34%";
+  const runnerW = m ? "64%" : "34%";
   return React.createElement("div", {
     className: "rp-intro",
     style: {
@@ -3068,9 +3068,10 @@ function Intro({
   }), React.createElement("div", {
     style: {
       position: "absolute",
-      left: m ? "24%" : "50%",
-      bottom: m ? "-3%" : "-8%",
-      width: runnerW
+      left: m ? "20%" : "50%",
+      bottom: m ? "3%" : "-8%",
+      width: runnerW,
+      zIndex: 2
     }
   }, [0.28, 0.14].map((o, i) => React.createElement("img", {
     key: o,
