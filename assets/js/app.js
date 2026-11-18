@@ -37,6 +37,45 @@ function useSeoulTime() {
   }, []);
   return t;
 }
+const COUNTER = "https://abacus.jasoncameron.dev";
+const COUNTER_KEY = "designerayr.com/visits";
+const safe = (f, fallback) => {
+  try {
+    return f();
+  } catch {
+    return fallback;
+  }
+};
+function useVisits() {
+  const [n, setN] = React.useState(null);
+  React.useEffect(() => {
+    const q = new URLSearchParams(location.search).get("owner");
+    if (q === "on") safe(() => localStorage.setItem("ayr-owner", "1"), undefined);
+    if (q === "off") safe(() => localStorage.removeItem("ayr-owner"), undefined);
+    const owner = safe(() => localStorage.getItem("ayr-owner") === "1", false);
+    const live = /(^|\.)designerayr\.com$/.test(location.hostname);
+    const counted = safe(() => sessionStorage.getItem("ayr-counted") === "1", false);
+    const hit = live && !owner && !counted;
+    fetch(`${COUNTER}/${hit ? "hit" : "get"}/${COUNTER_KEY}`).then(r => r.ok ? r.json() : r.status === 404 ? {
+      value: 0
+    } : Promise.reject(r.status)).then(d => {
+      if (typeof d.value === "number") setN(d.value);
+      if (hit) safe(() => sessionStorage.setItem("ayr-counted", "1"), undefined);
+    }).catch(() => setN(null));
+  }, []);
+  return n;
+}
+function VisitCount({
+  style
+}) {
+  const n = useVisits();
+  if (n === null) return null;
+  return React.createElement("span", {
+    className: "visits",
+    style: style,
+    title: "Visitors"
+  }, "Visitors ", n.toLocaleString("en-US"));
+}
 function Hero() {
   const {
     title,
@@ -90,7 +129,7 @@ function Hero() {
   }, React.createElement("div", {
     style: {
       display: "grid",
-      gridTemplateColumns: narrow ? "1fr auto" : "1.2fr 1fr 1fr auto",
+      gridTemplateColumns: narrow ? "1fr auto" : "1.2fr 2fr auto",
       gap: 24,
       padding: "0 24px",
       alignItems: "start"
@@ -101,14 +140,14 @@ function Hero() {
     style: label
   }, role), React.createElement("p", {
     style: value
-  }, "Seoul ", time)), !narrow && React.createElement("div", null, React.createElement("p", {
-    style: label
-  }, "Project Inquiries"), React.createElement("a", {
-    href: SITE.behance,
-    target: "_blank",
-    rel: "noopener",
-    style: value
-  }, "Behance \u2197")), React.createElement("div", {
+  }, "Seoul ", time)), React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "flex-end",
+      gap: 4
+    }
+  }, React.createElement("div", {
     style: {
       display: "flex",
       gap: narrow ? 14 : 22
@@ -119,12 +158,9 @@ function Hero() {
   }, "Work"), React.createElement("a", {
     href: "/about/",
     style: value
-  }, "About"), React.createElement("a", {
-    href: SITE.behance,
-    target: "_blank",
-    rel: "noopener",
-    style: value
-  }, "Contact"))), React.createElement("h1", {
+  }, "About")), React.createElement(VisitCount, {
+    style: label
+  }))), React.createElement("h1", {
     "aria-label": title,
     style: {
       margin: 0,
@@ -351,11 +387,7 @@ function SiteHeader() {
     href: "/work/"
   }, "Work"), React.createElement("a", {
     href: "/about/"
-  }, "About"), React.createElement("a", {
-    href: SITE.behance,
-    target: "_blank",
-    rel: "noopener"
-  }, "Behance")));
+  }, "About"), React.createElement(VisitCount, null)));
 }
 function Profile({
   tight = false
@@ -383,12 +415,7 @@ function Profile({
     className: "about pre"
   }, p.intro), React.createElement("span", {
     className: "available"
-  }, "Available for freelance work"), React.createElement("a", {
-    className: "btn",
-    href: SITE.behance,
-    target: "_blank",
-    rel: "noopener"
-  }, "Get in touch \u2197")), React.createElement("div", {
+  }, "Available for freelance work")), React.createElement("div", {
     className: "photo"
   }, React.createElement("img", {
     src: IMG + p.photo,
@@ -417,13 +444,7 @@ function Profile({
     className: "desc pre"
   }, s.desc), React.createElement("span", {
     className: "work"
-  }, s.work))))), React.createElement("div", {
-    className: "row reach"
-  }, React.createElement("h3", null, "Reach out"), React.createElement("div", null, React.createElement("a", {
-    href: SITE.behance,
-    target: "_blank",
-    rel: "noopener"
-  }, "Let\u2019s work together \u2197"), React.createElement("p", null, "Find more work and get in touch on Behance."))));
+  }, s.work))))));
 }
 function Card({
   p
@@ -559,13 +580,7 @@ function ProjectPage({
     height: h,
     alt: `${p.title} ${i + 1}`,
     loading: i < 2 ? "eager" : "lazy"
-  }))), p.behance && React.createElement("p", {
-    className: "behance"
-  }, React.createElement("a", {
-    href: p.behance,
-    target: "_blank",
-    rel: "noopener"
-  }, "View on Behance \u2197")), React.createElement("section", {
+  }))), React.createElement("section", {
     className: "others"
   }, React.createElement("div", {
     className: "others-head"

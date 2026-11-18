@@ -179,3 +179,6 @@ p { margin: 0; }
 .ph-contrib i { flex: 1; height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; }
 .ph-contrib em { display: block; height: 100%; background: var(--ink); }
 .others .card .kind { font-size: 11px; }
+
+/* ---------- Visitor count ---------- */
+.site-header nav .visits { color: var(--muted); font-weight: 500; white-space: nowrap; }

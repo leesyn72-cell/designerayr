@@ -39,6 +39,43 @@ function useSeoulTime() {
     return t
 }
 
+/* ---------------- Visitor count ---------------- */
+
+// A free, no-signup counter (abacus.jasoncameron.dev). One visit = one browser session on the live site.
+// The owner's own browsers are never counted: open any page once with ?owner=on to switch that browser off
+// (?owner=off turns it back on). Local previews never count either.
+const COUNTER = "https://abacus.jasoncameron.dev"
+const COUNTER_KEY = "designerayr.com/visits"
+const safe = <T,>(f: () => T, fallback: T) => { try { return f() } catch { return fallback } }
+
+function useVisits() {
+    const [n, setN] = React.useState<number | null>(null)
+    React.useEffect(() => {
+        const q = new URLSearchParams(location.search).get("owner")
+        if (q === "on") safe(() => localStorage.setItem("ayr-owner", "1"), undefined)
+        if (q === "off") safe(() => localStorage.removeItem("ayr-owner"), undefined)
+        const owner = safe(() => localStorage.getItem("ayr-owner") === "1", false)
+        const live = /(^|\.)designerayr\.com$/.test(location.hostname)
+        const counted = safe(() => sessionStorage.getItem("ayr-counted") === "1", false)
+        const hit = live && !owner && !counted
+        fetch(`${COUNTER}/${hit ? "hit" : "get"}/${COUNTER_KEY}`)
+            // a counter nobody has hit yet answers 404: show 0 until the first visit creates it
+            .then((r) => (r.ok ? r.json() : r.status === 404 ? { value: 0 } : Promise.reject(r.status)))
+            .then((d) => {
+                if (typeof d.value === "number") setN(d.value)
+                if (hit) safe(() => sessionStorage.setItem("ayr-counted", "1"), undefined)
+            })
+            .catch(() => setN(null))
+    }, [])
+    return n
+}
+
+function VisitCount({ style }: { style?: React.CSSProperties }) {
+    const n = useVisits()
+    if (n === null) return null
+    return <span className="visits" style={style} title="Visitors">Visitors {n.toLocaleString("en-US")}</span>
+}
+
 /* ---------------- Home hero: mono top bar and the big serif title ---------------- */
 
 function Hero() {
@@ -69,7 +106,7 @@ function Hero() {
 
     return (
         <div ref={rootRef} className="home-hero" style={{ width: "100%", display: "flex", flexDirection: "column" }}>
-            <div style={{ display: "grid", gridTemplateColumns: narrow ? "1fr auto" : "1.2fr 1fr 1fr auto", gap: 24, padding: "0 24px", alignItems: "start" }}>
+            <div style={{ display: "grid", gridTemplateColumns: narrow ? "1fr auto" : "1.2fr 2fr auto", gap: 24, padding: "0 24px", alignItems: "start" }}>
                 <p style={value}>{name}</p>
                 {!narrow && (
                     <div>
@@ -77,16 +114,12 @@ function Hero() {
                         <p style={value}>Seoul {time}</p>
                     </div>
                 )}
-                {!narrow && (
-                    <div>
-                        <p style={label}>Project Inquiries</p>
-                        <a href={SITE.behance} target="_blank" rel="noopener" style={value}>Behance ↗</a>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
+                    <div style={{ display: "flex", gap: narrow ? 14 : 22 }}>
+                        <a href="/work/" style={value}>Work</a>
+                        <a href="/about/" style={value}>About</a>
                     </div>
-                )}
-                <div style={{ display: "flex", gap: narrow ? 14 : 22 }}>
-                    <a href="/work/" style={value}>Work</a>
-                    <a href="/about/" style={value}>About</a>
-                    <a href={SITE.behance} target="_blank" rel="noopener" style={value}>Contact</a>
+                    <VisitCount style={label} />
                 </div>
             </div>
             <h1
@@ -229,7 +262,7 @@ function SiteHeader() {
             <nav>
                 <a href="/work/">Work</a>
                 <a href="/about/">About</a>
-                <a href={SITE.behance} target="_blank" rel="noopener">Behance</a>
+                <VisitCount />
             </nav>
         </header>
     )
@@ -253,7 +286,6 @@ function Profile({ tight = false }: { tight?: boolean }) {
                     </div>
                     <p className="about pre">{p.intro}</p>
                     <span className="available">Available for freelance work</span>
-                    <a className="btn" href={SITE.behance} target="_blank" rel="noopener">Get in touch ↗</a>
                 </div>
                 <div className="photo"><img src={IMG + p.photo} alt={SITE.name} /></div>
                 <div className="lists">
@@ -282,13 +314,6 @@ function Profile({ tight = false }: { tight?: boolean }) {
                     {p.services.map((s: any) => (
                         <div key={s.name}><span>{s.name}</span><span className="desc pre">{s.desc}</span><span className="work">{s.work}</span></div>
                     ))}
-                </div>
-            </div>
-            <div className="row reach">
-                <h3>Reach out</h3>
-                <div>
-                    <a href={SITE.behance} target="_blank" rel="noopener">Let’s work together ↗</a>
-                    <p>Find more work and get in touch on Behance.</p>
                 </div>
             </div>
         </section>
@@ -394,7 +419,6 @@ function ProjectPage({ slug }: { slug: string }) {
                         {p.body.map(([src, w, h], i) => <img key={src} src={IMG + src} width={w} height={h} alt={`${p.title} ${i + 1}`} loading={i < 2 ? "eager" : "lazy"} />)}
                     </div>
                 )}
-                {p.behance && <p className="behance"><a href={p.behance} target="_blank" rel="noopener">View on Behance ↗</a></p>}
                 <section className="others">
                     <div className="others-head">
                         <h2>Other projects</h2>
