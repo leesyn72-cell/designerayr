@@ -297,7 +297,7 @@ function Carousel() {
     style: {
       position: "absolute",
       left: 0,
-      top: narrow ? "10%" : "4%",
+      top: narrow ? "-7%" : "-8%",
       width: "100%",
       height: "100%",
       perspective: persp,

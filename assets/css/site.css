@@ -80,7 +80,7 @@ p { margin: 0; }
 
 /* ---------- Home ---------- */
 .home-hero { padding-top: 16px; }
-.carousel-wrap { height: 760px; margin-top: 24px; }
+.carousel-wrap { height: 670px; margin-top: 24px; }
 
 /* ---------- Work grid ---------- */
 .work-page { padding: 120px var(--pad) 120px; }
@@ -127,7 +127,7 @@ p { margin: 0; }
     .others .grid { grid-template-columns: repeat(2, 1fr); }
     .reach a { font-size: 52px; }
     .work-head h1, .proj-head h1 { font-size: 52px; }
-    .carousel-wrap { height: 620px; }
+    .carousel-wrap { height: 550px; }
 }
 
 /* ---------- Phone ---------- */
@@ -149,7 +149,7 @@ p { margin: 0; }
     .work-head { flex-direction: column; align-items: flex-start; gap: 12px; }
     .work-head h1, .proj-head h1 { font-size: 42px; }
     .proj-head { padding-top: 112px; }
-    .carousel-wrap { height: 520px; }
+    .carousel-wrap { height: 440px; }
 }
 
 /* ---------- Project overview (same block on every project) ---------- */

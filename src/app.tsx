@@ -220,7 +220,7 @@ function Carousel() {
 
     return (
         <div ref={rootRef} className="carousel-wrap" style={{ position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", left: 0, top: narrow ? "10%" : "4%", width: "100%", height: "100%", perspective: persp, perspectiveOrigin: "50% 20%", display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
+            <div style={{ position: "absolute", left: 0, top: narrow ? "-7%" : "-8%", width: "100%", height: "100%", perspective: persp, perspectiveOrigin: "50% 20%", display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
                 <div ref={ringRef} style={{ position: "relative", width: cardW, height: cardH, transformStyle: "preserve-3d" }}>
                     {list.map((p, i) => {
                         const face = (back: boolean) => (
