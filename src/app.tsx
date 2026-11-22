@@ -99,8 +99,8 @@ function Hero() {
     const narrow = w < 600
     const letters = Array.from(title)
     // Keep the title size; only shrink when a long word would overflow 90% of the width.
-    const base = Math.min(w * (narrow ? 0.14 : 0.11), 200)
-    const size = base * Math.min(1, (w * 0.8) / (Math.max(letters.length, 1) * 0.45 * base))
+    const base = Math.min(w * (narrow ? 0.12 : 0.085), 150)
+    const size = base * Math.min(1, (w * 0.68) / (Math.max(letters.length, 1) * 0.45 * base))
     const label: React.CSSProperties = { fontFamily: MONO, fontSize: narrow ? 11 : 13, lineHeight: 1.45, letterSpacing: "0.01em", color: "var(--muted)", margin: 0 }
     const value: React.CSSProperties = { ...label, color: "var(--ink)" }
 
@@ -152,10 +152,11 @@ function Hero() {
 
 /* ---------------- Home carousel: a slowly turning 3D ring of covers ---------------- */
 
-const ease = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2)
+// ease-out (quart): the push starts fast and settles softly into the next card
+const ease = (t: number) => 1 - Math.pow(1 - t, 4)
 
 function Carousel() {
-    const speed = 3, hold = 0.8, turn = 0.8, ghost = 0.18, hoverScale = 1.16
+    const speed = 3, hold = 0.7, turn = 1.1, ghost = 0.18, hoverScale = 1.16
     const base = SITE.carousel.map((slug) => SITE.projects.find((p) => p.slug === slug)!).filter(Boolean)
     const list = React.useMemo(() => { const out: Project[] = []; while (out.length < 12) out.push(...base); return out }, [])
     const n = list.length

@@ -104,8 +104,8 @@ function Hero() {
   }, []);
   const narrow = w < 600;
   const letters = Array.from(title);
-  const base = Math.min(w * (narrow ? 0.14 : 0.11), 200);
-  const size = base * Math.min(1, w * 0.8 / (Math.max(letters.length, 1) * 0.45 * base));
+  const base = Math.min(w * (narrow ? 0.12 : 0.085), 150);
+  const size = base * Math.min(1, w * 0.68 / (Math.max(letters.length, 1) * 0.45 * base));
   const label = {
     fontFamily: MONO,
     fontSize: narrow ? 11 : 13,
@@ -202,11 +202,11 @@ function Hero() {
     }
   }, SITE.tagline));
 }
-const ease = t => t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const ease = t => 1 - Math.pow(1 - t, 4);
 function Carousel() {
   const speed = 3,
-    hold = 0.8,
-    turn = 0.8,
+    hold = 0.7,
+    turn = 1.1,
     ghost = 0.18,
     hoverScale = 1.16;
   const base = SITE.carousel.map(slug => SITE.projects.find(p => p.slug === slug)).filter(Boolean);
