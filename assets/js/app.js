@@ -1,6 +1,6 @@
 (function () {
 const kindOf = p => p.kind || "company";
-const contributionOf = p => p.contribution ?? (kindOf(p) === "personal" ? 100 : 96);
+const contributionOf = p => p.contribution ?? 100;
 const KIND_LABEL = {
   company: "Company Project · ABBG",
   personal: "Personal Project"
@@ -104,8 +104,8 @@ function Hero() {
   }, []);
   const narrow = w < 600;
   const letters = Array.from(title);
-  const base = Math.min(w * (narrow ? 0.2 : 0.165), 300);
-  const size = base * Math.min(1, w * 0.9 / (Math.max(letters.length, 1) * 0.45 * base));
+  const base = Math.min(w * (narrow ? 0.14 : 0.11), 200);
+  const size = base * Math.min(1, w * 0.8 / (Math.max(letters.length, 1) * 0.45 * base));
   const label = {
     fontFamily: MONO,
     fontSize: narrow ? 11 : 13,

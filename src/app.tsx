@@ -5,10 +5,10 @@ type Project = { slug: string; title: string; field: string; deliverable: string
     // Shown in every project header. A logo is an image file; with `mask` it is used as a mask filled with that colour.
     client?: { name: string; logo?: string; ratio?: number; mask?: string }
     facts?: [string, string][]
-    // Company projects are done at ABBG (96% contribution); personal projects are 100% mine.
+    // Company projects are done at ABBG and personal projects are both 100% mine.
     kind?: "company" | "personal"; contribution?: number }
 const kindOf = (p: Project) => p.kind || "company"
-const contributionOf = (p: Project) => p.contribution ?? (kindOf(p) === "personal" ? 100 : 96)
+const contributionOf = (p: Project) => p.contribution ?? 100
 const KIND_LABEL = { company: "Company Project · ABBG", personal: "Personal Project" }
 const SITE = (window as any).SITE as { name: string; behance: string; tagline: string; hero: { title: string; name: string; role: string }; profile: any; carousel: string[]; projects: Project[] }
 const IMG = "/assets/img/"
@@ -99,8 +99,8 @@ function Hero() {
     const narrow = w < 600
     const letters = Array.from(title)
     // Keep the title size; only shrink when a long word would overflow 90% of the width.
-    const base = Math.min(w * (narrow ? 0.2 : 0.165), 300)
-    const size = base * Math.min(1, (w * 0.9) / (Math.max(letters.length, 1) * 0.45 * base))
+    const base = Math.min(w * (narrow ? 0.14 : 0.11), 200)
+    const size = base * Math.min(1, (w * 0.8) / (Math.max(letters.length, 1) * 0.45 * base))
     const label: React.CSSProperties = { fontFamily: MONO, fontSize: narrow ? 11 : 13, lineHeight: 1.45, letterSpacing: "0.01em", color: "var(--muted)", margin: 0 }
     const value: React.CSSProperties = { ...label, color: "var(--ink)" }
 

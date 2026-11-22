@@ -23,14 +23,14 @@ window.SITE = {
         {
             slug: "prunau", title: "fru:now Brand Identity", field: "Brand Identity", deliverable: "Logo, Color System, Detail Page", year: "2026",
             cover: "dvwtygDs6sF6eAWmwXJeTPI9NAE.jpg", guide: "PrunauGuideline",
-            kind: "company", contribution: 96,
+            kind: "company", contribution: 100,
             intro: "과일 브랜드 프루나우의\n브랜드 아이덴티티와 상세페이지 디자인.\n콜론에 과일과 사람의 연결을 담았습니다.",
             body: [],
         },
         {
             slug: "tandanji-office-meal", title: "Tandanji Office Meal", field: "Brand Identity", deliverable: "Logo, Color System", year: "2026",
             cover: "Wbic18i1zs3EUWDRfMGh4a5JqI.jpg", guide: "OfficeMealGuideline",
-            kind: "company", contribution: 96,
+            kind: "company", contribution: 100,
             client: { name: "탄단지박스", logo: "D3NaZsE2ifbXRjAjt0bBjryF53k.png", ratio: 2.744, mask: "#F91515" },
             intro: "탄단지박스 오피스밀의\n로고와 컬러 시스템 디자인.\n곡선의 스크립트로 따뜻함을 담았습니다.",
             body: [],
@@ -45,7 +45,7 @@ window.SITE = {
         {
             slug: "laserin-contents", title: "LASERIN Contents Design", field: "Contents Design", deliverable: "Instagram Contents", year: "2026",
             cover: "ls-12.jpg", guide: "LaserinContents",
-            kind: "company", contribution: 96,
+            kind: "company", contribution: 100,
             client: { name: "라세린 · GoGoDive", logo: "laserin-word.png", ratio: 3.864, mask: "#D47097" },
             facts: [["Products", "Lumina · Yunseul · Tweedy · Raina · Glit"]],
             intro: "라세린 인스타그램 콘텐츠 제작.\n수영복 브랜드 라세린의\n인스타그램 피드 콘텐츠 디자인.",
@@ -54,7 +54,7 @@ window.SITE = {
         {
             slug: "runpl-kim-kukyoung", title: "atflee Runpl × Kim Kuk‑young", field: "Detail Page", deliverable: "Detail Page, Thumbnail", year: "2026",
             cover: "rp-cover.jpg", guide: "RunplDetail",
-            kind: "company", contribution: 96,
+            kind: "company", contribution: 100,
             client: { name: "앳플리 atflee", logo: "atflee-orange.svg", ratio: 3.733 },
             facts: [["Collaboration", "김국영 코치 · 100m 한국 기록 보유자"]],
             intro: "앳플리 × 김국영 콜라보\n앳플리 런플 상세페이지 제작.\n100m 한국 기록 보유자 김국영 코치와 함께했습니다.",
