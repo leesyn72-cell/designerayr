@@ -111,118 +111,6 @@ function Reveal({
     }
   }, children);
 }
-function Card({
-  file,
-  alt,
-  shadow = true,
-  radius = 6
-}) {
-  return React.createElement("img", {
-    src: `${IMG}${file}.jpg`,
-    alt: alt,
-    loading: "lazy",
-    draggable: false,
-    style: {
-      width: "100%",
-      aspectRatio: "4 / 5",
-      objectFit: "cover",
-      display: "block",
-      borderRadius: radius,
-      boxShadow: shadow ? "0 24px 60px rgba(17,16,20,0.18)" : "none"
-    }
-  });
-}
-function Phone({
-  file,
-  width
-}) {
-  return React.createElement("div", {
-    style: {
-      width,
-      background: "#fff",
-      borderRadius: 34,
-      padding: "14px 10px 18px",
-      boxShadow: "0 30px 70px rgba(17,16,20,0.22)",
-      border: "1px solid rgba(17,16,20,0.08)"
-    }
-  }, React.createElement("div", {
-    style: {
-      width: "34%",
-      height: 6,
-      margin: "0 auto 12px",
-      borderRadius: 6,
-      background: "#E6E3EE"
-    }
-  }), React.createElement("div", {
-    style: {
-      display: "flex",
-      alignItems: "center",
-      gap: 8,
-      padding: "0 4px 10px",
-      fontFamily: SANS,
-      fontSize: 11,
-      color: C.ink
-    }
-  }, React.createElement("div", {
-    style: {
-      width: 22,
-      height: 22,
-      borderRadius: "50%",
-      background: C.lilac
-    }
-  }), React.createElement("span", {
-    style: {
-      fontWeight: 600,
-      letterSpacing: "0.02em"
-    }
-  }, "laserin_swim")), React.createElement("img", {
-    src: `${IMG}${file}.jpg`,
-    alt: "",
-    loading: "lazy",
-    draggable: false,
-    style: {
-      width: "100%",
-      aspectRatio: "4 / 5",
-      objectFit: "cover",
-      display: "block"
-    }
-  }), React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: 10,
-      padding: "10px 4px 0"
-    }
-  }, [0, 1, 2].map(i => React.createElement("div", {
-    key: i,
-    style: {
-      width: 16,
-      height: 16,
-      borderRadius: i === 2 ? 3 : "50%",
-      border: `1.5px solid ${C.ink}`
-    }
-  }))), React.createElement("div", {
-    style: {
-      padding: "8px 4px 0",
-      display: "flex",
-      flexDirection: "column",
-      gap: 5
-    }
-  }, React.createElement("div", {
-    style: {
-      width: "62%",
-      height: 6,
-      borderRadius: 6,
-      background: "#E6E3EE"
-    }
-  }), React.createElement("div", {
-    style: {
-      width: "40%",
-      height: 6,
-      borderRadius: 6,
-      background: "#EEECF4"
-    }
-  })));
-}
 const PINK = "#D47097";
 const WALL_CSS = `
 @keyframes ls-up { from { transform: translateY(0) } to { transform: translateY(-50%) } }
@@ -354,13 +242,6 @@ function Wall({
     }
   }, React.createElement("div", {
     style: {
-      position: "absolute",
-      inset: 0,
-      backgroundImage: "linear-gradient(rgba(255,255,255,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.35) 1px, transparent 1px)",
-      backgroundSize: m ? "26px 34px" : "42px 52px"
-    }
-  }), React.createElement("div", {
-    style: {
       position: "relative",
       animation: "ls-cover-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both"
     }
@@ -406,12 +287,15 @@ function LaserinContents() {
   }, []);
   const m = w < 760;
   const pad = m ? 20 : Math.round(w * 0.04);
+  const SERIF = '"Instrument Serif", "Times New Roman", serif';
   const small = {
     fontFamily: SANS,
-    fontSize: m ? 11 : 12,
-    lineHeight: 1.65,
-    letterSpacing: "0.01em"
+    fontSize: m ? 11 : 13,
+    lineHeight: 1.6,
+    letterSpacing: "-0.005em",
+    margin: 0
   };
+  const soft = "0 40px 90px -30px rgba(40,20,40,0.35)";
   return React.createElement("div", {
     ref: rootRef,
     style: {
@@ -426,69 +310,66 @@ function LaserinContents() {
     const [en, ...kr] = s.product.split(" ");
     const tone = TONES[si % TONES.length];
     const flip = si % 2 === 1;
-    const lift = ["-7%", "6%", "-2%"];
-    const nameBlock = React.createElement(Reveal, {
+    return React.createElement("section", {
+      key: s.n,
       style: {
+        position: "relative",
+        overflow: "hidden",
+        background: tone.bg,
         color: tone.ink,
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        minHeight: m ? 0 : "100%"
+        padding: m ? "56px 20px 64px" : `${Math.round(w * 0.06)}px ${pad}px ${Math.round(w * 0.075)}px`
       }
-    }, React.createElement("div", null, React.createElement("div", {
+    }, React.createElement("div", {
+      "aria-hidden": true,
       style: {
-        fontFamily: '"Instrument Serif", "Times New Roman", serif',
+        position: "absolute",
+        left: 0,
+        right: 0,
+        top: m ? "34%" : "50%",
+        transform: "translateY(-50%)",
+        textAlign: "center",
+        fontFamily: SERIF,
         fontStyle: "italic",
-        fontSize: m ? 72 : Math.min(176, Math.round(w * 0.11)),
-        lineHeight: 0.86,
-        letterSpacing: "-0.03em",
-        color: tone.accent
+        fontSize: m ? "38vw" : "24vw",
+        lineHeight: 0.8,
+        letterSpacing: "-0.04em",
+        color: tone.accent,
+        opacity: 0.16,
+        whiteSpace: "nowrap",
+        pointerEvents: "none"
       }
-    }, en), React.createElement("div", {
+    }, en), React.createElement(Reveal, {
+      style: {
+        position: "relative",
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "baseline",
+        gap: 16,
+        marginBottom: m ? 28 : Math.round(w * 0.045)
+      }
+    }, React.createElement("p", {
       style: {
         ...small,
-        marginTop: m ? 10 : 18,
-        fontSize: m ? 12 : 13,
-        letterSpacing: "0.18em"
+        fontWeight: 600
       }
-    }, kr.join(" ")), React.createElement("div", {
+    }, s.n, React.createElement("span", {
       style: {
-        fontFamily: '"Instrument Serif", "Times New Roman", serif',
-        fontSize: m ? 20 : Math.min(30, Math.round(w * 0.02)),
-        lineHeight: 1.25,
-        marginTop: m ? 22 : 40,
-        maxWidth: 360
+        fontWeight: 400,
+        opacity: 0.55
       }
-    }, s.title)), React.createElement("ol", {
-      style: {
-        listStyle: "none",
-        padding: 0,
-        margin: m ? "22px 0 0" : "48px 0 0",
-        borderTop: `1px solid ${tone.line}`
-      }
-    }, s.notes.map((t, i) => React.createElement("li", {
-      key: t,
+    }, "\xA0\xA0", en, " ", kr.join(" "))), React.createElement("p", {
       style: {
         ...small,
-        display: "grid",
-        gridTemplateColumns: "28px 1fr",
-        padding: "10px 0",
-        borderBottom: `1px solid ${tone.line}`,
-        wordBreak: "keep-all",
-        color: tone.ink
+        textAlign: "right",
+        opacity: 0.55
       }
-    }, React.createElement("span", {
+    }, "Instagram Feed")), React.createElement("div", {
       style: {
-        opacity: 0.45
-      }
-    }, String(i + 1).padStart(2, "0")), t))));
-    const posts = React.createElement("div", {
-      style: {
+        position: "relative",
         display: "grid",
-        gridTemplateColumns: m ? "1fr 1fr" : "1fr 1.25fr 1fr",
-        gap: m ? 10 : Math.round(w * 0.016),
-        alignItems: "center",
-        padding: m ? 0 : "5% 0"
+        gridTemplateColumns: m ? "1fr 1fr" : "1fr 1.35fr 1fr",
+        gap: m ? 10 : Math.round(w * 0.022),
+        alignItems: "center"
       }
     }, s.files.map((f, i) => React.createElement(Reveal, {
       key: f,
@@ -497,83 +378,77 @@ function LaserinContents() {
         gridColumn: m && i === 1 ? "1 / -1" : undefined,
         gridRow: m && i === 1 ? 1 : undefined
       }
-    }, React.createElement("figure", {
-      style: {
-        margin: 0,
-        transform: m ? "none" : `translateY(${lift[i]})`
-      }
-    }, React.createElement(Card, {
-      file: f,
+    }, React.createElement("img", {
+      src: `${IMG}${f}.jpg`,
       alt: `${s.product} ${i + 1}`,
-      radius: 2
-    }), React.createElement("figcaption", {
+      loading: "lazy",
+      draggable: false,
       style: {
-        ...small,
-        display: "flex",
-        justifyContent: "space-between",
-        marginTop: 10,
-        color: tone.ink,
-        opacity: 0.6
+        width: "100%",
+        aspectRatio: "4 / 5",
+        objectFit: "cover",
+        display: "block",
+        borderRadius: m ? 4 : 6,
+        boxShadow: soft,
+        transform: m ? "none" : `translateY(${i === 1 ? 0 : i === 0 !== flip ? "-9%" : "9%"})`
       }
-    }, React.createElement("span", null, en), React.createElement("span", null, String(i + 1).padStart(2, "0")))))));
-    return React.createElement("section", {
-      key: s.n,
+    })))), React.createElement(Reveal, {
+      delay: 0.2,
       style: {
         position: "relative",
-        background: tone.bg,
-        padding: m ? "40px 20px 56px" : `${Math.round(w * 0.04)}px ${pad}px ${Math.round(w * 0.06)}px`,
-        overflow: "hidden"
+        display: "grid",
+        gridTemplateColumns: m ? "1fr" : "1fr 1fr",
+        gap: m ? 14 : pad,
+        marginTop: m ? 32 : Math.round(w * 0.05),
+        alignItems: "end"
       }
-    }, React.createElement("div", {
+    }, React.createElement("h3", {
       style: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        paddingBottom: 14,
-        marginBottom: m ? 28 : Math.round(w * 0.035),
-        borderBottom: `1px solid ${tone.line}`
+        margin: 0,
+        fontFamily: SERIF,
+        fontWeight: 400,
+        fontSize: m ? 28 : Math.min(52, Math.round(w * 0.034)),
+        lineHeight: 1.05,
+        letterSpacing: "-0.03em",
+        maxWidth: 560
       }
-    }, React.createElement(Wordmark, {
-      width: m ? 76 : 96,
-      color: tone.ink
-    }), React.createElement("span", {
+    }, s.title), React.createElement("p", {
       style: {
         ...small,
-        color: tone.ink,
-        letterSpacing: "0.12em"
+        opacity: 0.7,
+        maxWidth: 420,
+        justifySelf: m ? "start" : "end",
+        wordBreak: "keep-all"
       }
-    }, s.n, " / ", String(SETS.length).padStart(2, "0"))), React.createElement("div", {
-      style: {
-        display: "grid",
-        gridTemplateColumns: m ? "1fr" : flip ? "2.1fr 1fr" : "1fr 2.1fr",
-        gap: m ? 32 : Math.round(w * 0.05),
-        alignItems: "stretch"
-      }
-    }, m || !flip ? React.createElement(React.Fragment, null, nameBlock, posts) : React.createElement(React.Fragment, null, posts, nameBlock)));
+    }, s.notes.join(". "), ".")));
   }), React.createElement("section", {
     style: {
-      background: C.ink,
-      color: "#fff",
-      padding: m ? "56px 20px" : `${Math.round(w * 0.06)}px ${pad}px`,
+      background: "#F7EEF3",
+      color: C.ink,
+      padding: m ? "64px 20px" : `${Math.round(w * 0.07)}px ${pad}px`,
       display: "grid",
       gridTemplateColumns: m ? "1fr" : "1fr 1fr",
-      gap: m ? 36 : pad * 1.5,
+      gap: m ? 40 : pad * 1.5,
       alignItems: "center"
     }
-  }, React.createElement(Reveal, null, React.createElement("div", {
+  }, React.createElement(Reveal, null, React.createElement("h3", {
     style: {
-      fontWeight: 800,
-      fontSize: m ? 36 : Math.min(72, Math.round(w * 0.05)),
+      margin: 0,
+      fontFamily: SERIF,
+      fontWeight: 400,
+      fontSize: m ? 44 : Math.min(96, Math.round(w * 0.066)),
       lineHeight: 0.95,
-      letterSpacing: "-0.035em",
-      color: C.lilac
+      letterSpacing: "-0.035em"
     }
-  }, "Live on", React.createElement("br", null), "Instagram"), React.createElement("p", {
+  }, "Live on ", React.createElement("em", {
+    style: {
+      color: PINK
+    }
+  }, "Instagram")), React.createElement("p", {
     style: {
       ...small,
-      fontSize: m ? 12 : 13,
-      color: C.muted,
-      margin: "20px 0 0",
+      opacity: 0.6,
+      marginTop: 20,
       maxWidth: 360,
       wordBreak: "keep-all"
     }
@@ -582,14 +457,12 @@ function LaserinContents() {
     target: "_blank",
     rel: "noopener",
     style: {
-      display: "inline-flex",
-      gap: 6,
-      marginTop: 24,
       ...small,
-      fontSize: m ? 13 : 14,
-      color: "#fff",
-      borderBottom: `1px solid ${C.lilac}`,
-      paddingBottom: 2
+      display: "inline-block",
+      marginTop: 22,
+      color: C.ink,
+      textDecoration: "none",
+      fontWeight: 600
     }
   }, "@laserin_swim \u2197")), React.createElement(Reveal, {
     delay: 0.15,
@@ -599,12 +472,11 @@ function LaserinContents() {
     }
   }, React.createElement("div", {
     style: {
-      width: m ? "78%" : Math.min(360, Math.round(w * 0.25)),
-      background: "#000",
-      borderRadius: 40,
+      width: m ? "78%" : Math.min(380, Math.round(w * 0.26)),
+      background: "#111014",
+      borderRadius: 44,
       padding: 10,
-      boxShadow: "0 40px 90px rgba(0,0,0,0.45)",
-      border: "1px solid rgba(255,255,255,0.12)"
+      boxShadow: "0 50px 100px -30px rgba(60,20,50,0.45)"
     }
   }, React.createElement("img", {
     src: `${IMG}ls-feed.jpg`,
@@ -614,30 +486,34 @@ function LaserinContents() {
     style: {
       width: "100%",
       display: "block",
-      borderRadius: 30
+      borderRadius: 34
     }
   })))), React.createElement("section", {
     style: {
-      background: C.ink,
-      color: "#fff",
-      padding: m ? "0 20px 56px" : `0 ${pad}px ${Math.round(w * 0.06)}px`
+      background: "#F7EEF3",
+      paddingBottom: m ? 4 : 6
     }
   }, React.createElement("div", {
     style: {
       display: "grid",
-      gridTemplateColumns: "repeat(3, 1fr)",
+      gridTemplateColumns: `repeat(${m ? 3 : 5}, 1fr)`,
       gap: m ? 3 : 6,
-      maxWidth: 1000,
-      margin: "0 auto"
+      padding: m ? "0 3px" : "0 6px"
     }
   }, [...ALL].reverse().map((f, i) => React.createElement(Reveal, {
     key: f,
-    delay: i % 3 * 0.08
-  }, React.createElement(Card, {
-    file: f,
+    delay: i % 5 * 0.06
+  }, React.createElement("img", {
+    src: `${IMG}${f}.jpg`,
     alt: "",
-    shadow: false,
-    radius: 0
+    loading: "lazy",
+    draggable: false,
+    style: {
+      width: "100%",
+      aspectRatio: "4 / 5",
+      objectFit: "cover",
+      display: "block"
+    }
   }))))));
 }(window.Guides = window.Guides || {}).LaserinContents = LaserinContents;
 })();

@@ -53,30 +53,6 @@ function Reveal({ children, delay = 0, style }: { children: React.ReactNode; del
     )
 }
 
-function Card({ file, alt, shadow = true, radius = 6 }: { file: string; alt: string; shadow?: boolean; radius?: number }) {
-    return <img src={`${IMG}${file}.jpg`} alt={alt} loading="lazy" draggable={false} style={{ width: "100%", aspectRatio: "4 / 5", objectFit: "cover", display: "block", borderRadius: radius, boxShadow: shadow ? "0 24px 60px rgba(17,16,20,0.18)" : "none" }} />
-}
-
-/** A simple phone frame showing one post the way it sits in the feed. */
-function Phone({ file, width }: { file: string; width: number | string }) {
-    return (
-        <div style={{ width, background: "#fff", borderRadius: 34, padding: "14px 10px 18px", boxShadow: "0 30px 70px rgba(17,16,20,0.22)", border: "1px solid rgba(17,16,20,0.08)" }}>
-            <div style={{ width: "34%", height: 6, margin: "0 auto 12px", borderRadius: 6, background: "#E6E3EE" }} />
-            <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 4px 10px", fontFamily: SANS, fontSize: 11, color: C.ink }}>
-                <div style={{ width: 22, height: 22, borderRadius: "50%", background: C.lilac }} />
-                <span style={{ fontWeight: 600, letterSpacing: "0.02em" }}>laserin_swim</span>
-            </div>
-            <img src={`${IMG}${file}.jpg`} alt="" loading="lazy" draggable={false} style={{ width: "100%", aspectRatio: "4 / 5", objectFit: "cover", display: "block" }} />
-            <div style={{ display: "flex", gap: 10, padding: "10px 4px 0" }}>
-                {[0, 1, 2].map((i) => <div key={i} style={{ width: 16, height: 16, borderRadius: i === 2 ? 3 : "50%", border: `1.5px solid ${C.ink}` }} />)}
-            </div>
-            <div style={{ padding: "8px 4px 0", display: "flex", flexDirection: "column", gap: 5 }}>
-                <div style={{ width: "62%", height: 6, borderRadius: 6, background: "#E6E3EE" }} />
-                <div style={{ width: "40%", height: 6, borderRadius: 6, background: "#EEECF4" }} />
-            </div>
-        </div>
-    )
-}
 
 const PINK = "#D47097"
 const WALL_CSS = `
@@ -131,7 +107,6 @@ function Wall({ files, w, m }: { files: string[]; w: number; m: boolean }) {
 
             {/* opening card */}
             <div className="ls-cover" style={{ position: "absolute", inset: 0, zIndex: 5, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: m ? 16 : Math.round(w * 0.016), background: "linear-gradient(180deg, #F3D7DE 0%, #E9E1EC 30%, #A9CFE3 52%, #E6DDE8 74%, #EBB9C8 100%)", animation: `ls-cover-out ${cover}s cubic-bezier(0.7, 0, 0.3, 1) both` }}>
-                <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,255,255,0.35) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.35) 1px, transparent 1px)", backgroundSize: m ? "26px 34px" : "42px 52px" }} />
                 <div style={{ position: "relative", animation: "ls-cover-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.15s both" }}><Wordmark width={m ? Math.round(w * 0.62) : Math.round(w * 0.36)} color={PINK} /></div>
                 <div style={{ position: "relative", textAlign: "center", fontFamily: SANS, color: "#fff", textShadow: "0 1px 12px rgba(120,60,90,0.25)", animation: "ls-cover-in 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both" }}>
                     <div style={{ fontSize: m ? 16 : Math.min(26, Math.round(w * 0.017)), fontWeight: 700 }}>라세린 인스타그램 콘텐츠 제작</div>
@@ -155,84 +130,68 @@ export default function LaserinContents() {
     }, [])
     const m = w < 760
     const pad = m ? 20 : Math.round(w * 0.04)
-    const small: React.CSSProperties = { fontFamily: SANS, fontSize: m ? 11 : 12, lineHeight: 1.65, letterSpacing: "0.01em" }
+    const SERIF = '"Instrument Serif", "Times New Roman", serif'
+    const small: React.CSSProperties = { fontFamily: SANS, fontSize: m ? 11 : 13, lineHeight: 1.6, letterSpacing: "-0.005em", margin: 0 }
+    const soft = "0 40px 90px -30px rgba(40,20,40,0.35)"
 
     return (
         <div ref={rootRef} style={{ width: "100%", fontFamily: SANS }}>
             {/* Intro: the LASERIN card, then the drifting wall of posts */}
             <Wall files={ALL} w={w} m={m} />
 
-
-            {/* One editorial spread per product: the name set large in the brand's serif mood, three posts staggered */}
+            {/* One full-bleed colour field per product: the name set huge behind, three posts floating in front.
+                No rules or boxes; type stays small so the posts carry the page. */}
             {SETS.map((s, si) => {
                 const [en, ...kr] = s.product.split(" ")
                 const tone = TONES[si % TONES.length]
                 const flip = si % 2 === 1
-                const lift = ["-7%", "6%", "-2%"]
-                const nameBlock = (
-                    <Reveal style={{ color: tone.ink, display: "flex", flexDirection: "column", justifyContent: "space-between", minHeight: m ? 0 : "100%" }}>
-                        <div>
-                            <div style={{ fontFamily: '"Instrument Serif", "Times New Roman", serif', fontStyle: "italic", fontSize: m ? 72 : Math.min(176, Math.round(w * 0.11)), lineHeight: 0.86, letterSpacing: "-0.03em", color: tone.accent }}>{en}</div>
-                            <div style={{ ...small, marginTop: m ? 10 : 18, fontSize: m ? 12 : 13, letterSpacing: "0.18em" }}>{kr.join(" ")}</div>
-                            <div style={{ fontFamily: '"Instrument Serif", "Times New Roman", serif', fontSize: m ? 20 : Math.min(30, Math.round(w * 0.02)), lineHeight: 1.25, marginTop: m ? 22 : 40, maxWidth: 360 }}>{s.title}</div>
-                        </div>
-                        <ol style={{ listStyle: "none", padding: 0, margin: m ? "22px 0 0" : "48px 0 0", borderTop: `1px solid ${tone.line}` }}>
-                            {s.notes.map((t, i) => (
-                                <li key={t} style={{ ...small, display: "grid", gridTemplateColumns: "28px 1fr", padding: "10px 0", borderBottom: `1px solid ${tone.line}`, wordBreak: "keep-all", color: tone.ink }}>
-                                    <span style={{ opacity: 0.45 }}>{String(i + 1).padStart(2, "0")}</span>{t}
-                                </li>
-                            ))}
-                        </ol>
-                    </Reveal>
-                )
-                const posts = (
-                    <div style={{ display: "grid", gridTemplateColumns: m ? "1fr 1fr" : "1fr 1.25fr 1fr", gap: m ? 10 : Math.round(w * 0.016), alignItems: "center", padding: m ? 0 : "5% 0" }}>
-                        {s.files.map((f, i) => (
-                            <Reveal key={f} delay={i * 0.12} style={{ gridColumn: m && i === 1 ? "1 / -1" : undefined, gridRow: m && i === 1 ? 1 : undefined }}>
-                                <figure style={{ margin: 0, transform: m ? "none" : `translateY(${lift[i]})` }}>
-                                    <Card file={f} alt={`${s.product} ${i + 1}`} radius={2} />
-                                    <figcaption style={{ ...small, display: "flex", justifyContent: "space-between", marginTop: 10, color: tone.ink, opacity: 0.6 }}>
-                                        <span>{en}</span><span>{String(i + 1).padStart(2, "0")}</span>
-                                    </figcaption>
-                                </figure>
-                            </Reveal>
-                        ))}
-                    </div>
-                )
                 return (
-                    <section key={s.n} style={{ position: "relative", background: tone.bg, padding: m ? "40px 20px 56px" : `${Math.round(w * 0.04)}px ${pad}px ${Math.round(w * 0.06)}px`, overflow: "hidden" }}>
-                        {/* running header, like a magazine page */}
-                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingBottom: 14, marginBottom: m ? 28 : Math.round(w * 0.035), borderBottom: `1px solid ${tone.line}` }}>
-                            <Wordmark width={m ? 76 : 96} color={tone.ink} />
-                            <span style={{ ...small, color: tone.ink, letterSpacing: "0.12em" }}>{s.n} / {String(SETS.length).padStart(2, "0")}</span>
+                    <section key={s.n} style={{ position: "relative", overflow: "hidden", background: tone.bg, color: tone.ink, padding: m ? "56px 20px 64px" : `${Math.round(w * 0.06)}px ${pad}px ${Math.round(w * 0.075)}px` }}>
+                        {/* the product name, set huge behind the posts */}
+                        <div aria-hidden style={{ position: "absolute", left: 0, right: 0, top: m ? "34%" : "50%", transform: "translateY(-50%)", textAlign: "center", fontFamily: SERIF, fontStyle: "italic", fontSize: m ? "38vw" : "24vw", lineHeight: 0.8, letterSpacing: "-0.04em", color: tone.accent, opacity: 0.16, whiteSpace: "nowrap", pointerEvents: "none" }}>{en}</div>
+
+                        <Reveal style={{ position: "relative", display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 16, marginBottom: m ? 28 : Math.round(w * 0.045) }}>
+                            <p style={{ ...small, fontWeight: 600 }}>{s.n}<span style={{ fontWeight: 400, opacity: 0.55 }}>&nbsp;&nbsp;{en} {kr.join(" ")}</span></p>
+                            <p style={{ ...small, textAlign: "right", opacity: 0.55 }}>Instagram Feed</p>
+                        </Reveal>
+
+                        <div style={{ position: "relative", display: "grid", gridTemplateColumns: m ? "1fr 1fr" : "1fr 1.35fr 1fr", gap: m ? 10 : Math.round(w * 0.022), alignItems: "center" }}>
+                            {s.files.map((f, i) => (
+                                <Reveal key={f} delay={i * 0.12} style={{ gridColumn: m && i === 1 ? "1 / -1" : undefined, gridRow: m && i === 1 ? 1 : undefined }}>
+                                    <img src={`${IMG}${f}.jpg`} alt={`${s.product} ${i + 1}`} loading="lazy" draggable={false}
+                                        style={{ width: "100%", aspectRatio: "4 / 5", objectFit: "cover", display: "block", borderRadius: m ? 4 : 6, boxShadow: soft, transform: m ? "none" : `translateY(${i === 1 ? 0 : (i === 0) !== flip ? "-9%" : "9%"})` }} />
+                                </Reveal>
+                            ))}
                         </div>
-                        <div style={{ display: "grid", gridTemplateColumns: m ? "1fr" : flip ? "2.1fr 1fr" : "1fr 2.1fr", gap: m ? 32 : Math.round(w * 0.05), alignItems: "stretch" }}>
-                            {m || !flip ? <>{nameBlock}{posts}</> : <>{posts}{nameBlock}</>}
-                        </div>
+
+                        <Reveal delay={0.2} style={{ position: "relative", display: "grid", gridTemplateColumns: m ? "1fr" : "1fr 1fr", gap: m ? 14 : pad, marginTop: m ? 32 : Math.round(w * 0.05), alignItems: "end" }}>
+                            <h3 style={{ margin: 0, fontFamily: SERIF, fontWeight: 400, fontSize: m ? 28 : Math.min(52, Math.round(w * 0.034)), lineHeight: 1.05, letterSpacing: "-0.03em", maxWidth: 560 }}>{s.title}</h3>
+                            <p style={{ ...small, opacity: 0.7, maxWidth: 420, justifySelf: m ? "start" : "end", wordBreak: "keep-all" }}>{s.notes.join(". ")}.</p>
+                        </Reveal>
                     </section>
                 )
             })}
 
-            {/* Live: the posts as they appear on the brand's Instagram */}
-            <section style={{ background: C.ink, color: "#fff", padding: m ? "56px 20px" : `${Math.round(w * 0.06)}px ${pad}px`, display: "grid", gridTemplateColumns: m ? "1fr" : "1fr 1fr", gap: m ? 36 : pad * 1.5, alignItems: "center" }}>
+            {/* Live: the feed as it appears on the brand's Instagram */}
+            <section style={{ background: "#F7EEF3", color: C.ink, padding: m ? "64px 20px" : `${Math.round(w * 0.07)}px ${pad}px`, display: "grid", gridTemplateColumns: m ? "1fr" : "1fr 1fr", gap: m ? 40 : pad * 1.5, alignItems: "center" }}>
                 <Reveal>
-                    <div style={{ fontWeight: 800, fontSize: m ? 36 : Math.min(72, Math.round(w * 0.05)), lineHeight: 0.95, letterSpacing: "-0.035em", color: C.lilac }}>Live on<br />Instagram</div>
-                    <p style={{ ...small, fontSize: m ? 12 : 13, color: C.muted, margin: "20px 0 0", maxWidth: 360, wordBreak: "keep-all" }}>라세린 공식 인스타그램 피드에 실제로 업로드된 화면입니다.</p>
-                    <a href={INSTAGRAM} target="_blank" rel="noopener" style={{ display: "inline-flex", gap: 6, marginTop: 24, ...small, fontSize: m ? 13 : 14, color: "#fff", borderBottom: `1px solid ${C.lilac}`, paddingBottom: 2 }}>@laserin_swim ↗</a>
+                    <h3 style={{ margin: 0, fontFamily: SERIF, fontWeight: 400, fontSize: m ? 44 : Math.min(96, Math.round(w * 0.066)), lineHeight: 0.95, letterSpacing: "-0.035em" }}>Live on <em style={{ color: PINK }}>Instagram</em></h3>
+                    <p style={{ ...small, opacity: 0.6, marginTop: 20, maxWidth: 360, wordBreak: "keep-all" }}>라세린 공식 인스타그램 피드에 실제로 업로드된 화면입니다.</p>
+                    <a href={INSTAGRAM} target="_blank" rel="noopener" style={{ ...small, display: "inline-block", marginTop: 22, color: C.ink, textDecoration: "none", fontWeight: 600 }}>@laserin_swim ↗</a>
                 </Reveal>
                 <Reveal delay={0.15} style={{ display: "flex", justifyContent: "center" }}>
-                    <div style={{ width: m ? "78%" : Math.min(360, Math.round(w * 0.25)), background: "#000", borderRadius: 40, padding: 10, boxShadow: "0 40px 90px rgba(0,0,0,0.45)", border: "1px solid rgba(255,255,255,0.12)" }}>
-                        <img src={`${IMG}ls-feed.jpg`} alt="The LASERIN Instagram profile feed" loading="lazy" draggable={false} style={{ width: "100%", display: "block", borderRadius: 30 }} />
+                    <div style={{ width: m ? "78%" : Math.min(380, Math.round(w * 0.26)), background: "#111014", borderRadius: 44, padding: 10, boxShadow: "0 50px 100px -30px rgba(60,20,50,0.45)" }}>
+                        <img src={`${IMG}ls-feed.jpg`} alt="The LASERIN Instagram profile feed" loading="lazy" draggable={false} style={{ width: "100%", display: "block", borderRadius: 34 }} />
                     </div>
                 </Reveal>
             </section>
 
-            {/* Every post, three across like the grid */}
-            <section style={{ background: C.ink, color: "#fff", padding: m ? "0 20px 56px" : `0 ${pad}px ${Math.round(w * 0.06)}px` }}>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: m ? 3 : 6, maxWidth: 1000, margin: "0 auto" }}>
+            {/* Every post, edge to edge */}
+            <section style={{ background: "#F7EEF3", paddingBottom: m ? 4 : 6 }}>
+                <div style={{ display: "grid", gridTemplateColumns: `repeat(${m ? 3 : 5}, 1fr)`, gap: m ? 3 : 6, padding: m ? "0 3px" : "0 6px" }}>
                     {[...ALL].reverse().map((f, i) => (
-                        <Reveal key={f} delay={(i % 3) * 0.08}>
-                            <Card file={f} alt="" shadow={false} radius={0} />
+                        <Reveal key={f} delay={(i % 5) * 0.06}>
+                            <img src={`${IMG}${f}.jpg`} alt="" loading="lazy" draggable={false} style={{ width: "100%", aspectRatio: "4 / 5", objectFit: "cover", display: "block" }} />
                         </Reveal>
                     ))}
                 </div>

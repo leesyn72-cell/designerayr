@@ -76,159 +76,26 @@ function VisitCount({
     title: "Visitors"
   }, "Visitors ", n.toLocaleString("en-US"));
 }
-function Hero() {
+function HomeMain() {
   const {
     title,
     name,
     role
   } = SITE.hero;
-  const [rootRef, w] = useWidth();
-  const [shown, setShown] = React.useState(false);
-  const [hover, setHover] = React.useState(null);
   const time = useSeoulTime();
-  React.useEffect(() => {
-    let done = false;
-    const go = () => {
-      if (!done) {
-        done = true;
-        setTimeout(() => setShown(true), 80);
-      }
-    };
-    const fonts = document.fonts;
-    if (fonts && fonts.load) fonts.load('400 100px "Instrument Serif"').then(go, go);else go();
-    const t = setTimeout(go, 1500);
-    return () => {
-      done = true;
-      clearTimeout(t);
-    };
-  }, []);
-  const narrow = w < 600;
-  const letters = Array.from(title);
-  const base = Math.min(w * (narrow ? 0.12 : 0.085), 150);
-  const size = base * Math.min(1, w * 0.68 / (Math.max(letters.length, 1) * 0.45 * base));
-  const label = {
-    fontFamily: MONO,
-    fontSize: narrow ? 11 : 13,
-    lineHeight: 1.45,
-    letterSpacing: "0.01em",
-    color: "var(--muted)",
-    margin: 0
-  };
-  const value = {
-    ...label,
-    color: "var(--ink)"
-  };
-  return React.createElement("div", {
-    ref: rootRef,
-    className: "home-hero",
-    style: {
-      width: "100%",
-      display: "flex",
-      flexDirection: "column"
-    }
-  }, React.createElement("div", {
-    style: {
-      display: "grid",
-      gridTemplateColumns: narrow ? "1fr auto" : "1.2fr 2fr auto",
-      gap: 24,
-      padding: "0 24px",
-      alignItems: "start"
-    }
-  }, React.createElement("p", {
-    style: value
-  }, name), !narrow && React.createElement("div", null, React.createElement("p", {
-    style: label
-  }, role), React.createElement("p", {
-    style: value
-  }, "Seoul ", time)), React.createElement("div", {
-    style: {
-      display: "flex",
-      flexDirection: "column",
-      alignItems: "flex-end",
-      gap: 4
-    }
-  }, React.createElement("div", {
-    style: {
-      display: "flex",
-      gap: narrow ? 14 : 22
-    }
-  }, React.createElement("a", {
-    href: "/work/",
-    style: value
-  }, "Work"), React.createElement("a", {
-    href: "/about/",
-    style: value
-  }, "About")), React.createElement(VisitCount, {
-    style: label
-  }))), React.createElement("h1", {
-    "aria-label": title,
-    style: {
-      margin: 0,
-      marginTop: narrow ? 56 : 40,
-      textAlign: "center",
-      fontFamily: "var(--serif)",
-      fontWeight: 400,
-      fontSize: size,
-      lineHeight: 0.95,
-      height: base * 0.95,
-      display: "flex",
-      alignItems: "flex-end",
-      justifyContent: "center",
-      letterSpacing: "-0.01em",
-      whiteSpace: "nowrap",
-      transform: `scale(${shown ? 1 : 1.18})`,
-      transition: "transform 1.6s cubic-bezier(0.16, 1, 0.3, 1)"
-    }
-  }, letters.map((ch, i) => React.createElement("span", {
-    key: i,
-    "aria-hidden": true,
-    onMouseEnter: () => setHover(i),
-    onMouseLeave: () => setHover(null),
-    style: {
-      display: "inline-block",
-      whiteSpace: "pre",
-      opacity: shown ? hover === null || hover === i ? 1 : 0.35 : 0,
-      filter: shown ? "blur(0px)" : "blur(12px)",
-      transform: `translateY(${shown ? hover === i ? -0.06 : 0 : 0.45}em)`,
-      transition: `opacity ${shown ? 0.5 : 0.9}s ease ${shown ? 0 : i * 0.07}s, filter 1s ease ${i * 0.07}s, transform ${hover === i || hover === null ? 0.9 : 0.6}s cubic-bezier(0.16, 1, 0.3, 1) ${shown && hover === null ? 0 : i * 0.07}s`
-    }
-  }, ch))), React.createElement("p", {
-    style: {
-      ...label,
-      textAlign: "center",
-      margin: narrow ? "20px 24px 0" : "18px 24px 0",
-      opacity: shown ? 1 : 0,
-      transition: "opacity 1s ease 0.7s"
-    }
-  }, SITE.tagline));
-}
-const ease = t => 1 - Math.pow(1 - t, 4);
-function Carousel() {
-  const speed = 3,
-    hold = 0.7,
-    turn = 1.1,
-    ghost = 0.18,
-    hoverScale = 1.16;
   const base = SITE.carousel.map(slug => SITE.projects.find(p => p.slug === slug)).filter(Boolean);
-  const list = React.useMemo(() => {
-    const out = [];
-    while (out.length < 12) out.push(...base);
-    return out;
-  }, []);
-  const n = list.length;
-  const step = 360 / n;
-  const rootRef = React.useRef(null);
-  const ringRef = React.useRef(null);
+  const stageRef = React.useRef(null);
   const cardRefs = React.useRef([]);
   const [size, setSize] = React.useState({
     w: 1200,
-    h: 760
+    h: 520
   });
   const [hovered, setHovered] = React.useState(null);
   const hoveredRef = React.useRef(null);
   hoveredRef.current = hovered;
+  const movedRef = React.useRef(false);
   React.useEffect(() => {
-    const el = rootRef.current;
+    const el = stageRef.current;
     if (!el) return;
     const ro = new ResizeObserver(([e]) => {
       const {
@@ -244,134 +111,177 @@ function Carousel() {
     return () => ro.disconnect();
   }, []);
   const narrow = size.w < 600;
-  const cardH = Math.min(size.h * (narrow ? 0.46 : 0.56), size.w * 0.72 / 0.75);
-  const cardW = cardH * 0.75;
-  const radius = cardW * 1.15 / (2 * Math.tan(Math.PI / n));
-  const persp = radius * 1.7;
+  const cardH = Math.round(Math.min(size.h * (narrow ? 0.5 : 0.56), narrow ? 240 : 320));
+  const cardW = Math.round(cardH * 0.82);
+  const gap = narrow ? 8 : 12;
+  const pitch = cardW + gap;
+  const reps = Math.max(2, Math.ceil(size.w * 2.2 / (pitch * base.length)));
+  const list = React.useMemo(() => {
+    const out = [];
+    for (let r = 0; r < reps; r++) out.push(...base);
+    return out;
+  }, [reps]);
+  const total = list.length * pitch;
   React.useEffect(() => {
+    const W = size.w;
+    const persp = W * (narrow ? 1.1 : 0.85);
+    const s0 = W * (narrow ? 0.34 : 0.48);
+    const R = W * (narrow ? 0.74 : 0.56);
+    const maxT = 1.5;
+    const drift = narrow ? -48 : -64;
     let raf = 0,
       last = 0,
-      tv = 0,
-      mult = 1;
-    const period = hold + turn;
-    const angleAt = t => {
-      const k = Math.floor(t / period);
-      const f = Math.min(1, Math.max(0, (t - k * period - hold) / turn));
-      return -(speed * t + (step - speed * period) * (k + ease(f)));
-    };
-    const apply = angle => {
-      if (ringRef.current) ringRef.current.style.transform = `translateZ(${-radius}px) rotateX(-7deg) rotateY(${angle}deg)`;
-      cardRefs.current.forEach((c, i) => {
+      x = 0,
+      v = drift;
+    let dragging = false,
+      px = 0,
+      pt = 0,
+      scrollY = window.scrollY;
+    const reduce = !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    const apply = () => {
+      list.forEach((_, i) => {
+        const c = cardRefs.current[i];
         if (!c) return;
-        const cos = Math.cos((i * step + angle) * (Math.PI / 180));
-        const front = Math.min(1, Math.max(0, (cos - 0.9) / 0.1));
-        const back = Math.min(1, Math.max(0, (-cos - 0.35) / 0.35));
-        c.style.opacity = String(Math.max(front, ghost * back));
-        c.style.pointerEvents = front > 0.5 ? "auto" : "none";
-        c.querySelectorAll("[data-face]").forEach(f => {
-          f.style.visibility = f.dataset.face === "back" === cos < 0 ? "visible" : "hidden";
-        });
+        const s = ((i * pitch + x) % total + total) % total - pitch * 2 + cardW / 2;
+        const t = Math.max(0, (s - s0) / R);
+        const cx = t > 0 ? s0 + R * Math.sin(t) : s;
+        const z = t > 0 ? R * (1 - Math.cos(t)) : 0;
+        c.style.transform = `translate3d(${cx - cardW / 2}px, 0, ${z}px) rotateY(${-t * 180 / Math.PI}deg)`;
+        c.style.visibility = s < -pitch || t > maxT || z > persp * 0.8 ? "hidden" : "visible";
       });
     };
-    apply(0);
-    if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
     const tick = t => {
       const dt = last ? Math.min(64, t - last) / 1000 : 0;
       last = t;
-      mult += ((hoveredRef.current === null ? 1 : 0) - mult) * Math.min(1, dt * 6);
-      tv += dt * mult;
-      apply(angleAt(tv));
+      if (!dragging) {
+        const target = hoveredRef.current !== null || reduce ? 0 : drift;
+        v += (target - v) * Math.min(1, dt * 2.4);
+        x += v * dt;
+      }
+      apply();
       raf = requestAnimationFrame(tick);
     };
+    const el = stageRef.current;
+    const down = e => {
+      dragging = true;
+      movedRef.current = false;
+      px = e.clientX;
+      pt = performance.now();
+    };
+    const move = e => {
+      if (!dragging) return;
+      const now = performance.now(),
+        dx = e.clientX - px;
+      if (Math.abs(dx) > 4) movedRef.current = true;
+      x += dx;
+      v = v * 0.4 + dx / Math.max(1, now - pt) * 1000 * 0.6;
+      px = e.clientX;
+      pt = now;
+    };
+    const up = () => {
+      dragging = false;
+    };
+    const wheel = e => {
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        x -= e.deltaX;
+        v -= e.deltaX * 8;
+      }
+    };
+    const scroll = () => {
+      const dy = window.scrollY - scrollY;
+      scrollY = window.scrollY;
+      v -= Math.max(-80, Math.min(80, dy)) * 12;
+    };
+    el.addEventListener("pointerdown", down);
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
+    el.addEventListener("wheel", wheel, {
+      passive: true
+    });
+    window.addEventListener("scroll", scroll, {
+      passive: true
+    });
+    apply();
     raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [n, step, radius]);
-  return React.createElement("div", {
-    ref: rootRef,
-    className: "carousel-wrap",
+    return () => {
+      cancelAnimationFrame(raf);
+      el.removeEventListener("pointerdown", down);
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
+      el.removeEventListener("wheel", wheel);
+      window.removeEventListener("scroll", scroll);
+    };
+  }, [size.w, narrow, pitch, total, list, cardW]);
+  const cap = s => s.toLowerCase().replace(/\b\w/g, m => m.toUpperCase());
+  return React.createElement("section", {
+    className: "home-main"
+  }, React.createElement("header", {
+    className: "hm-bar"
+  }, React.createElement("p", {
+    className: "hm-name"
+  }, React.createElement("span", null, cap(name)), " ", React.createElement("span", {
+    className: "muted"
+  }, role)), React.createElement("p", {
+    className: "hm-mid"
+  }, "Seoul ", time), React.createElement("nav", {
+    className: "hm-nav"
+  }, React.createElement("a", {
+    href: "/work/"
+  }, "Work"), React.createElement("a", {
+    href: "/about/",
+    className: "muted"
+  }, "About"), React.createElement(VisitCount, null))), React.createElement("div", {
+    ref: stageRef,
+    className: "hm-stage",
+    onClickCapture: e => {
+      if (movedRef.current) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    },
     style: {
-      position: "relative",
-      overflow: "hidden"
+      perspective: Math.round(size.w * (narrow ? 1.1 : 0.85)),
+      perspectiveOrigin: "50% 50%"
     }
   }, React.createElement("div", {
+    className: "hm-track",
     style: {
-      position: "absolute",
-      left: 0,
-      top: narrow ? "-7%" : "-8%",
-      width: "100%",
-      height: "100%",
-      perspective: persp,
-      perspectiveOrigin: "50% 20%",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      pointerEvents: "none"
-    }
-  }, React.createElement("div", {
-    ref: ringRef,
-    style: {
-      position: "relative",
-      width: cardW,
       height: cardH,
-      transformStyle: "preserve-3d"
+      marginTop: -cardH / 2
     }
-  }, list.map((p, i) => {
-    const face = back => React.createElement("div", {
-      "data-face": back ? "back" : "front",
-      style: {
-        position: "absolute",
-        inset: 0,
-        overflow: "hidden",
-        background: "var(--line)",
-        transform: back ? "scaleX(-1)" : "none",
-        visibility: back ? "hidden" : "visible"
-      }
-    }, React.createElement("img", {
-      src: IMG + p.cover,
-      alt: back ? "" : p.title,
-      draggable: false,
-      style: {
-        width: "100%",
-        height: "100%",
-        objectFit: "cover"
-      }
-    }));
-    return React.createElement("div", {
-      key: i,
-      ref: el => {
-        cardRefs.current[i] = el;
-      },
-      title: p.title,
-      onMouseEnter: () => setHovered(i),
-      onMouseLeave: () => setHovered(null),
-      style: {
-        position: "absolute",
-        inset: 0,
-        transformStyle: "preserve-3d",
-        transform: `rotateY(${i * step}deg) translateZ(${radius}px)`,
-        cursor: "pointer",
-        pointerEvents: "auto"
-      }
-    }, React.createElement("a", {
-      href: projectUrl(p.slug),
-      "aria-label": p.title,
-      style: {
-        display: "block",
-        width: "100%",
-        height: "100%",
-        transformStyle: "preserve-3d"
-      }
-    }, React.createElement("div", {
-      style: {
-        position: "relative",
-        width: "100%",
-        height: "100%",
-        transformStyle: "preserve-3d",
-        transform: `scale(${hovered === i ? hoverScale : 1})`,
-        transition: "transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)"
-      }
-    }, face(false), face(true))));
-  }))));
+  }, list.map((p, i) => React.createElement("a", {
+    key: i,
+    ref: el => {
+      cardRefs.current[i] = el;
+    },
+    href: projectUrl(p.slug),
+    "aria-label": p.title,
+    draggable: false,
+    className: "hm-card" + (hovered === i ? " on" : ""),
+    onMouseEnter: () => setHovered(i),
+    onMouseLeave: () => setHovered(null),
+    style: {
+      width: cardW,
+      height: cardH
+    }
+  }, React.createElement("img", {
+    src: IMG + p.cover,
+    alt: "",
+    draggable: false
+  }), React.createElement("span", {
+    className: "hm-cap"
+  }, React.createElement("b", null, p.title), React.createElement("span", null, p.field), React.createElement("span", null, p.year)))))), React.createElement("footer", {
+    className: "hm-foot"
+  }, React.createElement("p", {
+    className: "hm-line"
+  }, React.createElement("span", null, cap(title), "."), " ", React.createElement("span", {
+    className: "muted"
+  }, "Scroll or drag to browse, click a frame to open it.")), React.createElement("a", {
+    className: "hm-count",
+    href: "/work/"
+  }, "Selected Works (", String(base.length).padStart(2, "0"), ")")));
 }
 function SiteHeader() {
   return React.createElement("header", {
@@ -469,7 +379,7 @@ function Card({
   }), kindOf(p) === "company" ? "ABBG" : "Personal", " \xB7 ", contributionOf(p), "%"));
 }
 function HomePage() {
-  return React.createElement(React.Fragment, null, React.createElement(Hero, null), React.createElement(Carousel, null), React.createElement(Profile, null));
+  return React.createElement(React.Fragment, null, React.createElement(HomeMain, null), React.createElement(Profile, null));
 }
 function WorkPage() {
   const read = () => {

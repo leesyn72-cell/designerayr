@@ -78,99 +78,25 @@ function VisitCount({ style }: { style?: React.CSSProperties }) {
 
 /* ---------------- Home hero: mono top bar and the big serif title ---------------- */
 
-function Hero() {
+/* ---------------- Home: one full screen — a top bar, a curving strip of project frames, a short line ----------------
+   The strip drifts left on its own. On the right it curls toward the viewer like a page being turned:
+   frames there come closer, grow and turn to follow the curve. Dragging, sideways swipes and page scrolling
+   push the strip; the push fades out with an ease-out (exponential friction). */
+
+function HomeMain() {
     const { title, name, role } = SITE.hero
-    const [rootRef, w] = useWidth<HTMLDivElement>()
-    const [shown, setShown] = React.useState(false)
-    const [hover, setHover] = React.useState<number | null>(null)
     const time = useSeoulTime()
-    // Start the letter animation only once the title font has loaded, so it plays once instead of
-    // replaying when the fallback serif swaps to Instrument Serif. Give up waiting after 1.5s.
-    React.useEffect(() => {
-        let done = false
-        const go = () => { if (!done) { done = true; setTimeout(() => setShown(true), 80) } }
-        const fonts = (document as any).fonts
-        if (fonts && fonts.load) fonts.load('400 100px "Instrument Serif"').then(go, go)
-        else go()
-        const t = setTimeout(go, 1500)
-        return () => { done = true; clearTimeout(t) }
-    }, [])
-
-    const narrow = w < 600
-    const letters = Array.from(title)
-    // Keep the title size; only shrink when a long word would overflow 90% of the width.
-    const base = Math.min(w * (narrow ? 0.12 : 0.085), 150)
-    const size = base * Math.min(1, (w * 0.68) / (Math.max(letters.length, 1) * 0.45 * base))
-    const label: React.CSSProperties = { fontFamily: MONO, fontSize: narrow ? 11 : 13, lineHeight: 1.45, letterSpacing: "0.01em", color: "var(--muted)", margin: 0 }
-    const value: React.CSSProperties = { ...label, color: "var(--ink)" }
-
-    return (
-        <div ref={rootRef} className="home-hero" style={{ width: "100%", display: "flex", flexDirection: "column" }}>
-            <div style={{ display: "grid", gridTemplateColumns: narrow ? "1fr auto" : "1.2fr 2fr auto", gap: 24, padding: "0 24px", alignItems: "start" }}>
-                <p style={value}>{name}</p>
-                {!narrow && (
-                    <div>
-                        <p style={label}>{role}</p>
-                        <p style={value}>Seoul {time}</p>
-                    </div>
-                )}
-                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
-                    <div style={{ display: "flex", gap: narrow ? 14 : 22 }}>
-                        <a href="/work/" style={value}>Work</a>
-                        <a href="/about/" style={value}>About</a>
-                    </div>
-                    <VisitCount style={label} />
-                </div>
-            </div>
-            <h1
-                aria-label={title}
-                style={{ margin: 0, marginTop: narrow ? 56 : 40, textAlign: "center", fontFamily: "var(--serif)", fontWeight: 400, fontSize: size, lineHeight: 0.95, height: base * 0.95, display: "flex", alignItems: "flex-end", justifyContent: "center", letterSpacing: "-0.01em", whiteSpace: "nowrap", transform: `scale(${shown ? 1 : 1.18})`, transition: "transform 1.6s cubic-bezier(0.16, 1, 0.3, 1)" }}
-            >
-                {letters.map((ch, i) => (
-                    <span
-                        key={i}
-                        aria-hidden
-                        onMouseEnter={() => setHover(i)}
-                        onMouseLeave={() => setHover(null)}
-                        style={{
-                            display: "inline-block",
-                            whiteSpace: "pre",
-                            opacity: shown ? (hover === null || hover === i ? 1 : 0.35) : 0,
-                            filter: shown ? "blur(0px)" : "blur(12px)",
-                            transform: `translateY(${shown ? (hover === i ? -0.06 : 0) : 0.45}em)`,
-                            transition: `opacity ${shown ? 0.5 : 0.9}s ease ${shown ? 0 : i * 0.07}s, filter 1s ease ${i * 0.07}s, transform ${hover === i || hover === null ? 0.9 : 0.6}s cubic-bezier(0.16, 1, 0.3, 1) ${shown && hover === null ? 0 : i * 0.07}s`,
-                        }}
-                    >
-                        {ch}
-                    </span>
-                ))}
-            </h1>
-            <p style={{ ...label, textAlign: "center", margin: narrow ? "20px 24px 0" : "18px 24px 0", opacity: shown ? 1 : 0, transition: "opacity 1s ease 0.7s" }}>{SITE.tagline}</p>
-        </div>
-    )
-}
-
-/* ---------------- Home carousel: a slowly turning 3D ring of covers ---------------- */
-
-// ease-out (quart): the push starts fast and settles softly into the next card
-const ease = (t: number) => 1 - Math.pow(1 - t, 4)
-
-function Carousel() {
-    const speed = 3, hold = 0.7, turn = 1.1, ghost = 0.18, hoverScale = 1.16
     const base = SITE.carousel.map((slug) => SITE.projects.find((p) => p.slug === slug)!).filter(Boolean)
-    const list = React.useMemo(() => { const out: Project[] = []; while (out.length < 12) out.push(...base); return out }, [])
-    const n = list.length
-    const step = 360 / n
-    const rootRef = React.useRef<HTMLDivElement>(null)
-    const ringRef = React.useRef<HTMLDivElement>(null)
-    const cardRefs = React.useRef<(HTMLDivElement | null)[]>([])
-    const [size, setSize] = React.useState({ w: 1200, h: 760 })
+    const stageRef = React.useRef<HTMLDivElement>(null)
+    const cardRefs = React.useRef<(HTMLAnchorElement | null)[]>([])
+    const [size, setSize] = React.useState({ w: 1200, h: 520 })
     const [hovered, setHovered] = React.useState<number | null>(null)
     const hoveredRef = React.useRef<number | null>(null)
     hoveredRef.current = hovered
+    const movedRef = React.useRef(false)
 
     React.useEffect(() => {
-        const el = rootRef.current
+        const el = stageRef.current
         if (!el) return
         const ro = new ResizeObserver(([e]) => { const { width, height } = e.contentRect; if (width > 0 && height > 0) setSize({ w: width, h: height }) })
         ro.observe(el)
@@ -178,78 +104,129 @@ function Carousel() {
     }, [])
 
     const narrow = size.w < 600
-    const cardH = Math.min(size.h * (narrow ? 0.46 : 0.56), (size.w * 0.72) / 0.75)
-    const cardW = cardH * 0.75
-    const radius = (cardW * 1.15) / (2 * Math.tan(Math.PI / n))
-    const persp = radius * 1.7
+    const cardH = Math.round(Math.min(size.h * (narrow ? 0.5 : 0.56), narrow ? 240 : 320))
+    const cardW = Math.round(cardH * 0.82)
+    const gap = narrow ? 8 : 12
+    const pitch = cardW + gap
+    const reps = Math.max(2, Math.ceil((size.w * 2.2) / (pitch * base.length)))
+    const list = React.useMemo(() => { const out: Project[] = []; for (let r = 0; r < reps; r++) out.push(...base); return out }, [reps])
+    const total = list.length * pitch
 
     React.useEffect(() => {
-        let raf = 0, last = 0, tv = 0, mult = 1
-        const period = hold + turn
-        const angleAt = (t: number) => {
-            const k = Math.floor(t / period)
-            const f = Math.min(1, Math.max(0, (t - k * period - hold) / turn))
-            // always moving: slow drift while holding, quick push to the next card
-            return -(speed * t + (step - speed * period) * (k + ease(f)))
-        }
-        const apply = (angle: number) => {
-            if (ringRef.current) ringRef.current.style.transform = `translateZ(${-radius}px) rotateX(-7deg) rotateY(${angle}deg)`
-            cardRefs.current.forEach((c, i) => {
+        const W = size.w
+        const persp = W * (narrow ? 1.1 : 0.85)
+        // the strip runs flat, then wraps round a circular arc toward the viewer.
+        // Frames are placed by distance along the strip, so they stay evenly spaced through the curl.
+        const s0 = W * (narrow ? 0.34 : 0.48) // where the curl starts
+        const R = W * (narrow ? 0.74 : 0.56) // radius of the curl
+        const maxT = 1.5 // stop drawing once a frame has turned ~86°
+        const drift = narrow ? -48 : -64
+        let raf = 0, last = 0, x = 0, v = drift
+        let dragging = false, px = 0, pt = 0, scrollY = window.scrollY
+        const reduce = !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+
+        const apply = () => {
+            list.forEach((_, i) => {
+                const c = cardRefs.current[i]
                 if (!c) return
-                const cos = Math.cos((i * step + angle) * (Math.PI / 180))
-                // front card fully visible, far side of the ring faint, side cards hidden
-                const front = Math.min(1, Math.max(0, (cos - 0.9) / 0.1))
-                const back = Math.min(1, Math.max(0, (-cos - 0.35) / 0.35))
-                c.style.opacity = String(Math.max(front, ghost * back))
-                c.style.pointerEvents = front > 0.5 ? "auto" : "none"
-                c.querySelectorAll<HTMLElement>("[data-face]").forEach((f) => { f.style.visibility = (f.dataset.face === "back") === (cos < 0) ? "visible" : "hidden" })
+                // card centre on screen, wrapped so the loop never ends
+                const s = ((((i * pitch + x) % total) + total) % total) - pitch * 2 + cardW / 2
+                const t = Math.max(0, (s - s0) / R)
+                const cx = t > 0 ? s0 + R * Math.sin(t) : s
+                const z = t > 0 ? R * (1 - Math.cos(t)) : 0
+                c.style.transform = `translate3d(${cx - cardW / 2}px, 0, ${z}px) rotateY(${(-t * 180) / Math.PI}deg)`
+                c.style.visibility = s < -pitch || t > maxT || z > persp * 0.8 ? "hidden" : "visible"
             })
         }
-        apply(0)
-        if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return
+
         const tick = (t: number) => {
             const dt = last ? Math.min(64, t - last) / 1000 : 0
             last = t
-            mult += ((hoveredRef.current === null ? 1 : 0) - mult) * Math.min(1, dt * 6)
-            tv += dt * mult
-            apply(angleAt(tv))
+            if (!dragging) {
+                const target = hoveredRef.current !== null || reduce ? 0 : drift
+                v += (target - v) * Math.min(1, dt * 2.4) // exponential decay = ease-out
+                x += v * dt
+            }
+            apply()
             raf = requestAnimationFrame(tick)
         }
-        raf = requestAnimationFrame(tick)
-        return () => cancelAnimationFrame(raf)
-    }, [n, step, radius])
 
+        const el = stageRef.current!
+        const down = (e: PointerEvent) => { dragging = true; movedRef.current = false; px = e.clientX; pt = performance.now() }
+        const move = (e: PointerEvent) => {
+            if (!dragging) return
+            const now = performance.now(), dx = e.clientX - px
+            if (Math.abs(dx) > 4) movedRef.current = true
+            x += dx
+            v = v * 0.4 + (dx / Math.max(1, now - pt)) * 1000 * 0.6
+            px = e.clientX; pt = now
+        }
+        const up = () => { dragging = false }
+        const wheel = (e: WheelEvent) => { if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) { x -= e.deltaX; v -= e.deltaX * 8 } }
+        const scroll = () => { const dy = window.scrollY - scrollY; scrollY = window.scrollY; v -= Math.max(-80, Math.min(80, dy)) * 12 }
+        el.addEventListener("pointerdown", down)
+        window.addEventListener("pointermove", move)
+        window.addEventListener("pointerup", up)
+        window.addEventListener("pointercancel", up)
+        el.addEventListener("wheel", wheel, { passive: true })
+        window.addEventListener("scroll", scroll, { passive: true })
+        apply()
+        raf = requestAnimationFrame(tick)
+        return () => {
+            cancelAnimationFrame(raf)
+            el.removeEventListener("pointerdown", down)
+            window.removeEventListener("pointermove", move)
+            window.removeEventListener("pointerup", up)
+            window.removeEventListener("pointercancel", up)
+            el.removeEventListener("wheel", wheel)
+            window.removeEventListener("scroll", scroll)
+        }
+    }, [size.w, narrow, pitch, total, list, cardW])
+
+    const cap = (s: string) => s.toLowerCase().replace(/\b\w/g, (m) => m.toUpperCase())
     return (
-        <div ref={rootRef} className="carousel-wrap" style={{ position: "relative", overflow: "hidden" }}>
-            <div style={{ position: "absolute", left: 0, top: narrow ? "-7%" : "-8%", width: "100%", height: "100%", perspective: persp, perspectiveOrigin: "50% 20%", display: "flex", alignItems: "center", justifyContent: "center", pointerEvents: "none" }}>
-                <div ref={ringRef} style={{ position: "relative", width: cardW, height: cardH, transformStyle: "preserve-3d" }}>
-                    {list.map((p, i) => {
-                        const face = (back: boolean) => (
-                            <div data-face={back ? "back" : "front"} style={{ position: "absolute", inset: 0, overflow: "hidden", background: "var(--line)", transform: back ? "scaleX(-1)" : "none", visibility: back ? "hidden" : "visible" }}>
-                                <img src={IMG + p.cover} alt={back ? "" : p.title} draggable={false} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-                            </div>
-                        )
-                        return (
-                            <div
-                                key={i}
-                                ref={(el) => { cardRefs.current[i] = el }}
-                                title={p.title}
-                                onMouseEnter={() => setHovered(i)}
-                                onMouseLeave={() => setHovered(null)}
-                                style={{ position: "absolute", inset: 0, transformStyle: "preserve-3d", transform: `rotateY(${i * step}deg) translateZ(${radius}px)`, cursor: "pointer", pointerEvents: "auto" }}
-                            >
-                                <a href={projectUrl(p.slug)} aria-label={p.title} style={{ display: "block", width: "100%", height: "100%", transformStyle: "preserve-3d" }}>
-                                    <div style={{ position: "relative", width: "100%", height: "100%", transformStyle: "preserve-3d", transform: `scale(${hovered === i ? hoverScale : 1})`, transition: "transform 0.45s cubic-bezier(0.22, 1, 0.36, 1)" }}>
-                                        {face(false)}
-                                        {face(true)}
-                                    </div>
-                                </a>
-                            </div>
-                        )
-                    })}
+        <section className="home-main">
+            <header className="hm-bar">
+                <p className="hm-name"><span>{cap(name)}</span> <span className="muted">{role}</span></p>
+                <p className="hm-mid">Seoul {time}</p>
+                <nav className="hm-nav">
+                    <a href="/work/">Work</a>
+                    <a href="/about/" className="muted">About</a>
+                    <VisitCount />
+                </nav>
+            </header>
+
+            <div
+                ref={stageRef}
+                className="hm-stage"
+                onClickCapture={(e) => { if (movedRef.current) { e.preventDefault(); e.stopPropagation() } }}
+                style={{ perspective: Math.round(size.w * (narrow ? 1.1 : 0.85)), perspectiveOrigin: "50% 50%" }}
+            >
+                <div className="hm-track" style={{ height: cardH, marginTop: -cardH / 2 }}>
+                    {list.map((p, i) => (
+                        <a
+                            key={i}
+                            ref={(el) => { cardRefs.current[i] = el }}
+                            href={projectUrl(p.slug)}
+                            aria-label={p.title}
+                            draggable={false}
+                            className={"hm-card" + (hovered === i ? " on" : "")}
+                            onMouseEnter={() => setHovered(i)}
+                            onMouseLeave={() => setHovered(null)}
+                            style={{ width: cardW, height: cardH }}
+                        >
+                            <img src={IMG + p.cover} alt="" draggable={false} />
+                            <span className="hm-cap"><b>{p.title}</b><span>{p.field}</span><span>{p.year}</span></span>
+                        </a>
+                    ))}
                 </div>
             </div>
-        </div>
+
+            <footer className="hm-foot">
+                <p className="hm-line"><span>{cap(title)}.</span> <span className="muted">Scroll or drag to browse, click a frame to open it.</span></p>
+                <a className="hm-count" href="/work/">Selected Works ({String(base.length).padStart(2, "0")})</a>
+            </footer>
+        </section>
     )
 }
 
@@ -336,8 +313,7 @@ function Card({ p }: { p: Project }) {
 function HomePage() {
     return (
         <>
-            <Hero />
-            <Carousel />
+            <HomeMain />
             <Profile />
         </>
     )
